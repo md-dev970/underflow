@@ -1,0 +1,95 @@
+.field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.label {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.hint {
+  color: var(--color-text-subtle);
+  font-size: 0.95rem;
+}
+
+.error {
+  color: var(--color-danger);
+  font-size: 0.95rem;
+}
+
+.control {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1rem;
+  transition:
+    border-color var(--transition-base),
+    box-shadow var(--transition-base),
+    background-color var(--transition-base);
+}
+
+.control:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 16%, transparent);
+}
+
+.control::placeholder {
+  color: var(--color-text-subtle);
+}
+
+.passwordWrap {
+  position: relative;
+}
+
+.passwordToggle {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.checkRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.checkbox {
+  inline-size: 1rem;
+  block-size: 1rem;
+}
+
+.switch {
+  position: relative;
+  inline-size: 3rem;
+  block-size: 1.75rem;
+  border-radius: 999px;
+  background: var(--color-borderStrong);
+  border: 0;
+  padding: 0.2rem;
+  transition: background-color var(--transition-base);
+}
+
+.switch[data-active="true"] {
+  background: var(--color-primary);
+}
+
+.switchThumb {
+  inline-size: 1.35rem;
+  block-size: 1.35rem;
+  border-radius: 999px;
+  background: white;
+  transform: translateX(0);
+  transition: transform var(--transition-base);
+}
+
+.switch[data-active="true"] .switchThumb {
+  transform: translateX(1.2rem);
+}

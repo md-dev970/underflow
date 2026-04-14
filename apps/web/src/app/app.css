@@ -1,0 +1,43 @@
+.appShell {
+  min-height: 100vh;
+}
+
+.container {
+  width: min(var(--max-content-width), calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+.pageStack {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.twoColumn {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 1.5rem;
+}
+
+.threeColumn {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.mutedText {
+  color: var(--color-text-muted);
+}
+
+.sectionSurface {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+@media (max-width: 960px) {
+  .twoColumn,
+  .threeColumn {
+    grid-template-columns: 1fr;
+  }
+}

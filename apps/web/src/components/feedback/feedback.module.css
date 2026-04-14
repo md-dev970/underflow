@@ -1,0 +1,127 @@
+.inlineAlert {
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+}
+
+.info {
+  background: color-mix(in srgb, var(--color-info) 15%, var(--color-surface));
+  color: var(--color-text);
+  border-color: color-mix(in srgb, var(--color-info) 25%, transparent);
+}
+
+.success {
+  background: color-mix(in srgb, var(--color-success) 15%, var(--color-surface));
+  border-color: color-mix(in srgb, var(--color-success) 25%, transparent);
+}
+
+.warning {
+  background: color-mix(in srgb, var(--color-warning) 15%, var(--color-surface));
+  border-color: color-mix(in srgb, var(--color-warning) 25%, transparent);
+}
+
+.danger {
+  background: color-mix(in srgb, var(--color-danger) 15%, var(--color-surface));
+  border-color: color-mix(in srgb, var(--color-danger) 25%, transparent);
+}
+
+.emptyState {
+  display: grid;
+  gap: 0.75rem;
+  place-items: start;
+}
+
+.emptyTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  font-family: var(--font-heading);
+}
+
+.emptyBody {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.skeleton {
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-muted) 10%,
+    color-mix(in srgb, var(--color-surface-muted) 60%, white) 45%,
+    var(--color-surface-muted) 80%
+  );
+  background-size: 200% 100%;
+  animation: pulse 1.4s infinite linear;
+}
+
+@keyframes pulse {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--color-overlay);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.modal {
+  width: min(580px, 100%);
+  max-height: min(80vh, 720px);
+  overflow: auto;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+  padding: 1.5rem;
+}
+
+.drawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(420px, 100%);
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+  padding: 1.5rem;
+  z-index: 60;
+}
+
+.toastViewport {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  display: grid;
+  gap: 0.75rem;
+  z-index: 70;
+}
+
+.toast {
+  min-width: 280px;
+}
+
+.routeStateStack {
+  display: grid;
+  gap: 1rem;
+}
+
+.routeStateCard {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.routeStateActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}

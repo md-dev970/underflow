@@ -1,0 +1,389 @@
+.page {
+  display: grid;
+  gap: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.title {
+  margin: 0 0 0.55rem;
+  font-size: clamp(2.2rem, 4vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.045em;
+  font-family: var(--font-heading);
+  color: var(--color-text);
+}
+
+.subrow {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.subrow strong {
+  color: var(--color-text);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.rangeGroup {
+  display: inline-flex;
+  gap: 0.35rem;
+  background: var(--color-surface-muted);
+  padding: 0.35rem;
+  border-radius: 0.85rem;
+}
+
+.rangeButton {
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.75rem 1rem;
+  border-radius: 0.65rem;
+}
+
+.rangeActive {
+  background: white;
+  color: var(--color-text);
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--color-shadow) 70%, transparent);
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.kpiCard {
+  position: relative;
+  overflow: hidden;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: var(--color-surface);
+  border: 1px solid color-mix(in srgb, var(--color-border) 65%, white);
+  box-shadow: 0 12px 32px -4px color-mix(in srgb, var(--color-shadow) 85%, transparent);
+}
+
+.kpiTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.kpiLabel {
+  margin: 0;
+  color: var(--color-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.kpiIcon {
+  color: color-mix(in srgb, var(--color-primary) 62%, transparent);
+  font-size: 1.2rem;
+}
+
+.kpiValueRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.kpiValue {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  font-family: var(--font-heading);
+  color: var(--color-text);
+}
+
+.kpiMeta {
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.kpiAccentBar {
+  position: absolute;
+  inset: auto 0 0;
+  height: 4px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-primary) 18%, transparent), var(--color-primary));
+}
+
+.kpiMiniStack {
+  display: flex;
+  margin-top: 0.75rem;
+  gap: 0.35rem;
+}
+
+.kpiMiniChip {
+  width: 1.75rem;
+  height: 1.75rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-surfaceMuted) 92%, white);
+  border: 2px solid white;
+  font-size: 0.52rem;
+  font-weight: 800;
+  color: var(--color-text-muted);
+}
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+  gap: 2rem;
+}
+
+.surfaceCard {
+  padding: 2rem;
+  border-radius: 1rem;
+  background: var(--color-surface);
+  border: 1px solid color-mix(in srgb, var(--color-border) 65%, white);
+  box-shadow: 0 12px 32px -4px color-mix(in srgb, var(--color-shadow) 85%, transparent);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.cardTitle {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.35rem;
+  font-family: var(--font-heading);
+}
+
+.cardBody {
+  margin: 0.25rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.legendDot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
+}
+
+.chartWrap {
+  height: 18rem;
+}
+
+.donutWrap {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.donutLegend {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.donutLegendRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.bottomGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2rem;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  background: var(--color-surface-muted);
+  color: var(--color-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.64rem;
+  font-weight: 800;
+  padding: 1rem 1.25rem;
+  text-align: left;
+}
+
+.table td {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+  font-size: 0.8rem;
+}
+
+.statusChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.38rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.statusSuccess {
+  background: color-mix(in srgb, var(--color-success) 14%, white);
+  color: var(--color-success);
+}
+
+.statusFailed {
+  background: color-mix(in srgb, var(--color-danger) 14%, white);
+  color: var(--color-danger);
+}
+
+.statusDot {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.historyAction {
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.driversList {
+  display: grid;
+  gap: 1rem;
+}
+
+.driverItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 0.85rem;
+  background: var(--color-surface-muted);
+}
+
+.driverLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.driverIcon {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.8rem;
+  background: white;
+  color: var(--color-primary);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--color-shadow) 70%, transparent);
+}
+
+.driverName {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.driverMeta {
+  margin: 0.2rem 0 0;
+  color: var(--color-text-subtle);
+  font-size: 0.68rem;
+}
+
+.driverAmount {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-text);
+  text-align: right;
+}
+
+.driverTrend {
+  margin: 0.2rem 0 0;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-align: right;
+}
+
+.trendPositive {
+  color: var(--color-success);
+}
+
+.trendWarning {
+  color: var(--color-danger);
+}
+
+@media (max-width: 1180px) {
+  .kpiGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mainGrid,
+  .bottomGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .header {
+    align-items: stretch;
+  }
+
+  .kpiGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .surfaceCard,
+  .kpiCard {
+    padding: 1.25rem;
+  }
+}

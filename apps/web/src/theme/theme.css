@@ -1,0 +1,40 @@
+:root {
+  --font-body: "Inter", sans-serif;
+  --font-heading: "Manrope", sans-serif;
+  --radius-sm: 0.625rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.5rem;
+  --shadow-md: 0 18px 48px var(--color-shadow);
+  --shadow-sm: 0 10px 24px var(--color-shadow);
+  --max-content-width: 1200px;
+  --transition-base: 180ms ease;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--color-background);
+  color: var(--color-text);
+  transition:
+    background-color var(--transition-base),
+    color var(--transition-base);
+}
+
+body[data-theme="light"] {
+  color-scheme: light;
+}
+
+body[data-theme="dark"] {
+  color-scheme: dark;
+}

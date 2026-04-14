@@ -1,0 +1,348 @@
+.shell {
+  display: grid;
+  grid-template-columns: 256px 1fr;
+  min-height: 100vh;
+  background: var(--color-background);
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: color-mix(in srgb, var(--color-surface) 84%, transparent);
+  backdrop-filter: blur(18px);
+  border-right: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+  box-shadow: 0 20px 40px color-mix(in srgb, var(--color-shadow) 40%, transparent);
+  padding: 1rem;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 1rem;
+  z-index: 20;
+}
+
+.mobileDrawer {
+  display: grid;
+  gap: 1rem;
+  height: 100%;
+}
+
+.brandBlock {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 0.75rem 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.brandIcon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.9rem;
+  background: var(--color-secondary);
+  color: white;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+  font-weight: 800;
+  box-shadow: 0 14px 26px color-mix(in srgb, var(--color-secondary) 24%, transparent);
+}
+
+.brandTitle {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--color-text);
+}
+
+.brandMeta {
+  margin: 0.15rem 0 0;
+  color: var(--color-text-subtle);
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.nav {
+  display: grid;
+  align-content: start;
+  gap: 0.3rem;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.75rem;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition:
+    background-color var(--transition-base),
+    color var(--transition-base),
+    transform var(--transition-base);
+}
+
+.navLink:hover {
+  transform: translateX(4px);
+  background: color-mix(in srgb, var(--color-surfaceMuted) 82%, transparent);
+}
+
+.navLinkActive {
+  background: color-mix(in srgb, var(--color-surfaceMuted) 90%, white);
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.navIcon {
+  width: 1.15rem;
+  display: inline-flex;
+  justify-content: center;
+  color: inherit;
+}
+
+.sidebarFooter {
+  padding-top: 1rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+  display: grid;
+  gap: 0.25rem;
+}
+
+.footerLink {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 1rem;
+  color: var(--color-text-subtle);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.footerLink:hover {
+  color: var(--color-primary);
+}
+
+.main {
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+  background: color-mix(in srgb, var(--color-surface) 80%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.topbarInner {
+  width: min(var(--max-content-width), calc(100% - 2rem));
+  margin: 0 auto;
+  min-height: 4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.topbarLeading {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.workspacePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.95rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-surfaceMuted) 90%, white);
+  color: var(--color-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+}
+
+.workspaceSelect {
+  min-width: 220px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.mobileMenuButton {
+  display: none;
+  border: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
+  background: color-mix(in srgb, var(--color-surfaceMuted) 92%, white);
+  color: var(--color-text);
+  border-radius: 999px;
+  padding: 0.65rem 0.95rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.workspaceSelect:focus {
+  outline: none;
+}
+
+.topbarActions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.iconCluster {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.iconButton {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+
+.iconButton:hover {
+  background: color-mix(in srgb, var(--color-surfaceMuted) 90%, white);
+  color: var(--color-text);
+}
+
+.divider {
+  width: 1px;
+  height: 2rem;
+  background: color-mix(in srgb, var(--color-border) 60%, transparent);
+  margin-inline: 0.25rem;
+}
+
+.themeGroup {
+  display: inline-flex;
+  gap: 0.35rem;
+  background: var(--color-surface-muted);
+  padding: 0.3rem;
+  border-radius: 999px;
+}
+
+.userBlock {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.userText {
+  text-align: right;
+}
+
+.userName {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.userRole {
+  margin: 0.15rem 0 0;
+  color: var(--color-text-subtle);
+  font-size: 0.62rem;
+  font-weight: 600;
+}
+
+.avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  color: white;
+  font-weight: 800;
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--color-shadow) 80%, transparent);
+}
+
+.content {
+  width: min(var(--max-content-width), calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 3rem;
+}
+
+@media (max-width: 1080px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .mobileMenuButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 760px) {
+  .topbarInner {
+    padding: 0.9rem 0;
+    min-height: auto;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .topbarActions {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .topbarLeading {
+    width: 100%;
+  }
+
+  .workspacePill {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .userText {
+    text-align: left;
+  }
+
+  .themeGroup {
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .iconCluster {
+    order: 1;
+  }
+
+  .userBlock {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .divider {
+    display: none;
+  }
+
+  .content {
+    width: min(var(--max-content-width), calc(100% - 1.25rem));
+    padding: 1.25rem 0 2rem;
+  }
+}
