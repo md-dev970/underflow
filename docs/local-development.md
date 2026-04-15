@@ -57,7 +57,7 @@ Copy-Item apps\web\.env.example apps\web\.env
 
 Default frontend config points the web app at the local API:
 
-- `VITE_API_URL=http://localhost:3000/api/v1`
+- `VITE_API_URL=http://localhost:3080/api/v1`
 
 ## Install Dependencies
 
@@ -116,8 +116,8 @@ npm run dev
 
 ## Local URLs
 
-- Web: `http://localhost:5173`
-- API: `http://localhost:3000`
+- Web: `http://localhost:5174`
+- API: `http://localhost:3080`
 
 ## Validation Commands
 

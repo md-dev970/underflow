@@ -137,8 +137,8 @@ npm run dev
 
 Default local URLs:
 
-- API: `http://localhost:3000`
-- Web: `http://localhost:5173`
+- API: `http://localhost:3080`
+- Web: `http://localhost:5174`
 
 For a fuller setup guide, see [docs/local-development.md](./docs/local-development.md).
 
@@ -173,10 +173,6 @@ See:
 - [docs/local-development.md](./docs/local-development.md)
 - [docs/status-and-limitations.md](./docs/status-and-limitations.md)
 - [`infra/terraform/README.md`](./infra/terraform/README.md)
-
-## Design Reference
-
-[`UI.html`](./UI.html) is kept in the repository as a design/reference artifact for the visual direction of the product.
 
 ## Roadmap Direction
 

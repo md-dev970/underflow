@@ -34,7 +34,7 @@ const parsePort = (): number => {
   const value = process.env.PORT;
 
   if (!value) {
-    return 3000;
+    return 3080;
   }
 
   const parsed = Number.parseInt(value, 10);
@@ -85,7 +85,7 @@ export const env = {
   ),
   ALERT_EMAIL_FROM: process.env.ALERT_EMAIL_FROM ?? "alerts@example.com",
   EMAIL_PROVIDER: process.env.EMAIL_PROVIDER ?? "console",
-  CLIENT_URL: process.env.CLIENT_URL ?? "http://localhost:5173",
+  CLIENT_URL: process.env.CLIENT_URL ?? "http://localhost:5174",
   PASSWORD_RESET_EXPIRES_IN_MINUTES: Number.parseInt(
     process.env.PASSWORD_RESET_EXPIRES_IN_MINUTES ??
       String(DEFAULT_PASSWORD_RESET_EXPIRES_IN_MINUTES),
