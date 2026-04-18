@@ -1,6 +1,8 @@
 import { workspaceRepository } from "../repositories/workspace.repository.js";
+import { logger } from "../lib/logger.js";
 import type {
   CreateWorkspaceInput,
+  DeletedWorkspaceResult,
   UpdateWorkspaceInput,
   Workspace,
 } from "../types/workspace.types.js";
@@ -8,7 +10,13 @@ import { AppError } from "../utils/app-error.js";
 
 export const workspaceService = {
   async create(userId: string, input: CreateWorkspaceInput): Promise<Workspace> {
-    return workspaceRepository.create(userId, input);
+    const workspace = await workspaceRepository.create(userId, input);
+    logger.info("Workspace created", {
+      userId,
+      workspaceId: workspace.id,
+      workspaceSlug: workspace.slug,
+    });
+    return workspace;
   },
 
   async listForUser(userId: string): Promise<Workspace[]> {
@@ -37,7 +45,38 @@ export const workspaceService = {
     input: UpdateWorkspaceInput,
   ): Promise<Workspace> {
     await this.getForUser(workspaceId, userId);
-    return workspaceRepository.updateById(workspaceId, input);
+    const workspace = await workspaceRepository.updateById(workspaceId, input);
+    logger.info("Workspace updated", {
+      userId,
+      workspaceId,
+      workspaceSlug: workspace.slug,
+    });
+    return workspace;
+  },
+
+  async deleteForUser(workspaceId: string, userId: string): Promise<DeletedWorkspaceResult> {
+    const workspace = await this.getForUser(workspaceId, userId);
+
+    if (workspace.ownerUserId !== userId) {
+      throw new AppError("Only the workspace owner can delete this workspace", 403);
+    }
+
+    const impact = await workspaceRepository.getDeletionImpact(workspaceId);
+    await workspaceRepository.deleteById(workspaceId);
+    logger.info("Workspace deleted", {
+      userId,
+      workspaceId,
+      deletedAwsAccountCount: impact.deletedAwsAccountCount,
+      deletedAlertCount: impact.deletedAlertCount,
+      deletedSnapshotCount: impact.deletedSnapshotCount,
+      deletedSyncRunCount: impact.deletedSyncRunCount,
+      deletedNotificationCount: impact.deletedNotificationCount,
+    });
+
+    return {
+      id: workspaceId,
+      ...impact,
+    };
   },
 
   async ensureUserHasAccess(workspaceId: string, userId: string): Promise<void> {

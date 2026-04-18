@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import { env } from "../config/env.js";
+import { logger } from "../lib/logger.js";
 import { AppError } from "../utils/app-error.js";
 import { generateOpaqueToken, hashToken } from "../utils/crypto.js";
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../utils/jwt.js";
@@ -228,9 +229,11 @@ export const authService = {
   },
 
   async requestPasswordReset(email: string): Promise<void> {
+    logger.info("Password reset requested", { email });
     const user = await userRepository.findByEmail(email);
 
     if (!user) {
+      logger.info("Password reset request completed without matching user", { email });
       return;
     }
 
@@ -243,11 +246,23 @@ export const authService = {
       expiresAt: parsePasswordResetExpiry(),
     });
 
-    await authEmailService.sendPasswordResetEmail({
-      email: user.email,
-      firstName: user.firstName,
-      token,
-    });
+    try {
+      await authEmailService.sendPasswordResetEmail({
+        email: user.email,
+        firstName: user.firstName,
+        token,
+      });
+      logger.info("Password reset email queued", {
+        userId: user.id,
+        email: user.email,
+      });
+    } catch (error) {
+      logger.error("Password reset email delivery failed", {
+        userId: user.id,
+        email: user.email,
+        errorMessage: error instanceof Error ? error.message : "Unknown email error",
+      });
+    }
   },
 
   async resetPassword(token: string, password: string): Promise<void> {
@@ -275,5 +290,9 @@ export const authService = {
     await userRepository.updatePasswordById(user.id, passwordHash);
     await passwordResetTokenRepository.markAllUsedByUserId(user.id);
     await refreshTokenRepository.revokeByUserId(user.id);
+    logger.info("Password reset completed", {
+      userId: user.id,
+      email: user.email,
+    });
   },
 };

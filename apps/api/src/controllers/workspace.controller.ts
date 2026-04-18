@@ -57,4 +57,15 @@ export const workspaceController = {
 
     res.status(200).json({ workspace });
   },
+
+  async remove(req: Request, res: Response): Promise<void> {
+    if (!req.user) {
+      throw new AppError("Unauthorized", 401);
+    }
+
+    const workspaceId = requireRouteParam(req.params.id, "id");
+    const deleted = await workspaceService.deleteForUser(workspaceId, req.user.id);
+
+    res.status(200).json({ deleted });
+  },
 };

@@ -101,7 +101,9 @@
   width: 1.15rem;
   display: inline-flex;
   justify-content: center;
+  align-items: center;
   color: inherit;
+  flex-shrink: 0;
 }
 
 .sidebarFooter {
@@ -215,11 +217,19 @@
   background: transparent;
   color: var(--color-text-muted);
   font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .iconButton:hover {
   background: color-mix(in srgb, var(--color-surfaceMuted) 90%, white);
   color: var(--color-text);
+}
+
+.iconButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .divider {

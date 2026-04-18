@@ -19,26 +19,38 @@ interface WorkspaceContextValue {
   activeWorkspace: Workspace | null;
   isLoading: boolean;
   refreshWorkspaces: () => Promise<void>;
-  setActiveWorkspaceId: (workspaceId: string) => void;
+  setActiveWorkspaceId: (workspaceId: string | null) => void;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 
 export const WorkspaceProvider = ({ children }: PropsWithChildren): JSX.Element => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [activeWorkspaceId, setActiveWorkspaceIdState] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const setActiveWorkspaceId = (workspaceId: string): void => {
-    window.localStorage.setItem(ACTIVE_WORKSPACE_KEY, workspaceId);
+  const setActiveWorkspaceId = (workspaceId: string | null): void => {
+    if (workspaceId) {
+      window.localStorage.setItem(ACTIVE_WORKSPACE_KEY, workspaceId);
+    } else {
+      window.localStorage.removeItem(ACTIVE_WORKSPACE_KEY);
+    }
+
     setActiveWorkspaceIdState(workspaceId);
   };
 
   const refreshWorkspaces = async (): Promise<void> => {
+    if (isAuthLoading) {
+      setIsLoading(true);
+      return;
+    }
+
     if (!isAuthenticated) {
       setWorkspaces([]);
+      window.localStorage.removeItem(ACTIVE_WORKSPACE_KEY);
       setActiveWorkspaceIdState(null);
+      setIsLoading(false);
       return;
     }
 
@@ -65,7 +77,7 @@ export const WorkspaceProvider = ({ children }: PropsWithChildren): JSX.Element 
 
   useEffect(() => {
     void refreshWorkspaces();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isAuthLoading]);
 
   const value = useMemo(
     () => ({

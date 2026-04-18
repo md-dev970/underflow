@@ -3,12 +3,15 @@ import { Route, Routes } from "react-router-dom";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 
 import { AppTestProviders } from "../../test/render-app";
+import { OverviewPage } from "./OverviewPage";
 import { CreateWorkspacePage } from "./CreateWorkspacePage";
 import { WorkspaceDetailPage } from "./WorkspaceDetailPage";
 import { WorkspacesPage } from "./WorkspacesPage";
+import { AwsAccountsPage } from "./AwsAccountsPage";
 import { ConnectAwsAccountPage } from "./ConnectAwsAccountPage";
 import { AlertsPage } from "./AlertsPage";
 import { CreateAlertPage } from "./CreateAlertPage";
+import { WorkspaceSettingsPage } from "./WorkspaceSettingsPage";
 
 const authApiMock = vi.hoisted(() => ({
   getSession: vi.fn(),
@@ -25,11 +28,15 @@ const workspaceApiMock = vi.hoisted(() => ({
   get: vi.fn(),
   create: vi.fn(),
   update: vi.fn(),
+  remove: vi.fn(),
 }));
 
 const awsApiMock = vi.hoisted(() => ({
+  get: vi.fn(),
   list: vi.fn(),
   create: vi.fn(),
+  update: vi.fn(),
+  remove: vi.fn(),
   verify: vi.fn(),
   sync: vi.fn(),
   summary: vi.fn(),
@@ -89,7 +96,7 @@ const awsAccount = {
   workspaceId: workspace.id,
   name: "Prod",
   awsAccountId: "123456789012",
-  roleArn: "arn:aws:iam::123456789012:role/Underflow",
+  roleArn: "arn:aws:iam::123456789012:role/UnderflowCostExplorerRead",
   externalId: null,
   status: "pending",
   lastVerifiedAt: null,
@@ -120,9 +127,40 @@ beforeEach(() => {
       slug: "growth",
     },
   });
+  workspaceApiMock.remove.mockResolvedValue({
+    deleted: {
+      id: "workspace-1",
+      deletedAwsAccountCount: 1,
+      deletedAlertCount: 2,
+      deletedSnapshotCount: 8,
+      deletedSyncRunCount: 4,
+      deletedNotificationCount: 3,
+    },
+  });
   awsApiMock.list.mockResolvedValue({ awsAccounts: [] });
   awsApiMock.create.mockResolvedValue({ awsAccount });
+  awsApiMock.remove.mockResolvedValue({
+    deleted: {
+      id: "aws-1",
+      workspaceId: workspace.id,
+      deletedAlertCount: 2,
+      deletedSyncRunCount: 4,
+      deletedSnapshotCount: 8,
+    },
+  });
   awsApiMock.verify.mockResolvedValue({ awsAccount: { ...awsAccount, status: "verified" } });
+  awsApiMock.summary.mockResolvedValue({
+    summary: {
+      totalAmount: 0,
+      currency: "USD",
+      from: "2026-01-01",
+      to: "2026-01-31",
+    },
+  });
+  awsApiMock.byService.mockResolvedValue({ services: [] });
+  awsApiMock.timeseries.mockResolvedValue({ points: [] });
+  awsApiMock.get.mockResolvedValue({ awsAccount });
+  awsApiMock.update.mockResolvedValue({ awsAccount: { ...awsAccount, name: "Prod updated" } });
   alertsApiMock.list.mockResolvedValue({ alerts: [] });
   alertsApiMock.remove.mockResolvedValue(undefined);
 });
@@ -153,7 +191,9 @@ test("workspace creation selects the new workspace and navigates to the detail p
 test("workspaces page quick-create updates the active workspace", async () => {
   renderPage("/app/workspaces", "/app/workspaces", <WorkspacesPage />);
 
-  fireEvent.change(screen.getByLabelText("Workspace name"), {
+  const nameField = await screen.findByLabelText("Workspace name");
+
+  fireEvent.change(nameField, {
     target: { value: "Growth" },
   });
   fireEvent.click(screen.getByRole("button", { name: "Quick create" }));
@@ -186,6 +226,26 @@ test("workspace detail handles missing workspaces with a retryable error state",
   });
 });
 
+test("overview exposes a connect AWS action when the active workspace has no accounts", async () => {
+  window.localStorage.setItem("underflow-active-workspace", "workspace-1");
+  renderPage("/app/overview", "/app/overview", <OverviewPage />);
+
+  await waitFor(() => {
+    expect(screen.getByRole("button", { name: "Connect AWS account" })).toBeTruthy();
+  });
+});
+
+test("aws accounts page provides a clear route back to the workspace", async () => {
+  renderPage(
+    "/app/workspaces/workspace-1/aws-accounts",
+    "/app/workspaces/:workspaceId/aws-accounts",
+    <AwsAccountsPage />,
+  );
+
+  const link = await screen.findByRole("link", { name: "Back to workspace" });
+  expect(link.getAttribute("href")).toBe("/app/workspaces/workspace-1");
+});
+
 test("aws account connection shows inline errors and then verifies successfully", async () => {
   awsApiMock.create
     .mockRejectedValueOnce(new Error("Role ARN is invalid"))
@@ -199,9 +259,6 @@ test("aws account connection shows inline errors and then verifies successfully"
 
   fireEvent.change(screen.getByLabelText("Account nickname"), { target: { value: "Prod" } });
   fireEvent.change(screen.getByLabelText("AWS account ID"), { target: { value: "123456789012" } });
-  fireEvent.change(screen.getByLabelText("Role ARN"), {
-    target: { value: "arn:aws:iam::123456789012:role/Underflow" },
-  });
 
   fireEvent.click(screen.getByRole("button", { name: "Save AWS account" }));
 
@@ -220,6 +277,99 @@ test("aws account connection shows inline errors and then verifies successfully"
   await waitFor(() => {
     expect(awsApiMock.verify).toHaveBeenCalledWith("aws-1");
   });
+});
+
+test("editing an AWS account updates the configuration and clears the external id", async () => {
+  awsApiMock.get.mockResolvedValue({
+    awsAccount: {
+      ...awsAccount,
+      externalId: "underflow-dev-shared-secret",
+      status: "verified",
+    },
+  });
+  awsApiMock.update.mockResolvedValue({
+    awsAccount: {
+      ...awsAccount,
+      name: "Prod updated",
+      externalId: null,
+      status: "pending",
+    },
+  });
+
+  renderPage(
+    "/app/workspaces/workspace-1/aws-accounts/aws-1/edit",
+    "/app/workspaces/:workspaceId/aws-accounts/:awsAccountId/edit",
+    <ConnectAwsAccountPage />,
+  );
+
+  const nicknameField = await screen.findByLabelText("Account nickname");
+  fireEvent.change(nicknameField, { target: { value: "Prod updated" } });
+  fireEvent.change(screen.getByLabelText("External ID"), {
+    target: { value: "" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+
+  await waitFor(() => {
+    expect(awsApiMock.update).toHaveBeenCalledWith("aws-1", {
+      name: "Prod updated",
+      awsAccountId: "123456789012",
+      externalId: null,
+    });
+  });
+});
+
+test("aws accounts page disconnects an account after confirmation", async () => {
+  awsApiMock.list.mockResolvedValue({
+    awsAccounts: [{ ...awsAccount, status: "verified" }],
+  });
+  const originalConfirm = window.confirm;
+  window.confirm = vi.fn(() => true);
+
+  try {
+    renderPage(
+      "/app/workspaces/workspace-1/aws-accounts",
+      "/app/workspaces/:workspaceId/aws-accounts",
+      <AwsAccountsPage />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Prod")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Disconnect" }));
+
+    await waitFor(() => {
+      expect(awsApiMock.remove).toHaveBeenCalledWith("aws-1");
+    });
+  } finally {
+    window.confirm = originalConfirm;
+  }
+});
+
+test("workspace settings deletes the active workspace after confirmation", async () => {
+  window.localStorage.setItem("underflow-active-workspace", "workspace-1");
+  const originalConfirm = window.confirm;
+  window.confirm = vi.fn(() => true);
+
+  try {
+    render(
+      <AppTestProviders initialEntries={["/app/settings/workspace"]}>
+        <Routes>
+          <Route element={<WorkspaceSettingsPage />} path="/app/settings/workspace" />
+          <Route element={<div>Workspaces index</div>} path="/app/workspaces" />
+        </Routes>
+      </AppTestProviders>,
+    );
+
+    const deleteButton = await screen.findByRole("button", { name: "Delete workspace" });
+    fireEvent.click(deleteButton);
+
+    await waitFor(() => {
+      expect(workspaceApiMock.remove).toHaveBeenCalledWith("workspace-1");
+    });
+  } finally {
+    window.confirm = originalConfirm;
+  }
 });
 
 test("alerts page supports delete confirmation and list reload", async () => {

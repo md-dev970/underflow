@@ -145,6 +145,110 @@ test("POST /api/v1/workspaces/:workspaceId/aws-accounts rejects invalid AWS acco
   assert.equal(response.body.message, "Validation failed");
 });
 
+test("POST /api/v1/aws-accounts/:id/verify returns the verified AWS account", async () => {
+  const { app, signAccessToken } = await loadModules();
+  const { awsAccountService } = await import("../services/aws-account.service.js");
+  const originalVerify = awsAccountService.verifyForUser;
+  awsAccountService.verifyForUser = async () => buildAwsAccount();
+
+  try {
+    const accessToken = signAccessToken(buildUser());
+    const response = await request(app)
+      .post("/api/v1/aws-accounts/11111111-1111-1111-1111-111111111111/verify")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({});
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.awsAccount.id, "11111111-1111-1111-1111-111111111111");
+  } finally {
+    awsAccountService.verifyForUser = originalVerify;
+  }
+});
+
+test("PATCH /api/v1/aws-accounts/:id updates the AWS account configuration", async () => {
+  const { app, signAccessToken } = await loadModules();
+  const { awsAccountService } = await import("../services/aws-account.service.js");
+  const originalUpdate = awsAccountService.updateForUser;
+  awsAccountService.updateForUser = async () => ({
+    ...buildAwsAccount(),
+    name: "Updated Prod Account",
+    roleArn: "arn:aws:iam::123456789012:role/UpdatedCostMonitor",
+    status: "pending",
+    lastVerifiedAt: null,
+  });
+
+  try {
+    const accessToken = signAccessToken(buildUser());
+    const response = await request(app)
+      .patch("/api/v1/aws-accounts/11111111-1111-1111-1111-111111111111")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({
+        name: "Updated Prod Account",
+        awsAccountId: "123456789012",
+        roleArn: "arn:aws:iam::123456789012:role/UpdatedCostMonitor",
+        externalId: null,
+      });
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.awsAccount.name, "Updated Prod Account");
+    assert.equal(response.body.awsAccount.status, "pending");
+  } finally {
+    awsAccountService.updateForUser = originalUpdate;
+  }
+});
+
+test("DELETE /api/v1/aws-accounts/:id disconnects an AWS account and returns cleanup counts", async () => {
+  const { app, signAccessToken } = await loadModules();
+  const { awsAccountService } = await import("../services/aws-account.service.js");
+  const originalDelete = awsAccountService.deleteForUser;
+  awsAccountService.deleteForUser = async () => ({
+    id: "11111111-1111-1111-1111-111111111111",
+    workspaceId: "workspace-123",
+    deletedAlertCount: 2,
+    deletedSyncRunCount: 4,
+    deletedSnapshotCount: 8,
+  });
+
+  try {
+    const accessToken = signAccessToken(buildUser());
+    const response = await request(app)
+      .delete("/api/v1/aws-accounts/11111111-1111-1111-1111-111111111111")
+      .set("Authorization", `Bearer ${accessToken}`);
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.deleted.deletedAlertCount, 2);
+    assert.equal(response.body.deleted.deletedSnapshotCount, 8);
+  } finally {
+    awsAccountService.deleteForUser = originalDelete;
+  }
+});
+
+test("DELETE /api/v1/workspaces/:id deletes a workspace and returns cleanup counts", async () => {
+  const { app, workspaceService, signAccessToken } = await loadModules();
+  const originalDelete = workspaceService.deleteForUser;
+  workspaceService.deleteForUser = async () => ({
+    id: "workspace-123",
+    deletedAwsAccountCount: 1,
+    deletedAlertCount: 2,
+    deletedSnapshotCount: 8,
+    deletedSyncRunCount: 4,
+    deletedNotificationCount: 3,
+  });
+
+  try {
+    const accessToken = signAccessToken(buildUser());
+    const response = await request(app)
+      .delete("/api/v1/workspaces/workspace-123")
+      .set("Authorization", `Bearer ${accessToken}`);
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.deleted.deletedAwsAccountCount, 1);
+    assert.equal(response.body.deleted.deletedNotificationCount, 3);
+  } finally {
+    workspaceService.deleteForUser = originalDelete;
+  }
+});
+
 test("POST /api/v1/aws-accounts/:id/sync triggers a manual sync", async () => {
   const { app, costService, signAccessToken } = await loadModules();
   const originalSync = costService.syncAwsAccountForUser;

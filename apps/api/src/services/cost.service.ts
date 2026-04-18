@@ -43,6 +43,14 @@ export const costService = {
     const syncRange =
       range?.from && range?.to ? { from: range.from, to: range.to } : defaultDateRange();
 
+    logger.info("Manual AWS sync requested", {
+      awsAccountId: awsAccount.id,
+      workspaceId: awsAccount.workspaceId,
+      requestedByUserId: userId,
+      from: syncRange.from,
+      to: syncRange.to,
+    });
+
     const lock = await jobLockRepository.withAdvisoryLock(
       `aws-sync:${awsAccount.id}`,
       async () => {
@@ -62,6 +70,12 @@ export const costService = {
 
           await awsAccountRepository.updateLastSyncAt(awsAccount.id);
           await costRepository.completeSyncRun(syncRunId, "completed");
+          logger.info("AWS sync completed", {
+            awsAccountId: awsAccount.id,
+            workspaceId: awsAccount.workspaceId,
+            syncRunId,
+            recordsSynced,
+          });
 
           return { syncRunId, recordsSynced };
         } catch (error) {
@@ -70,6 +84,11 @@ export const costService = {
             "failed",
             error instanceof Error ? error.message : "Unknown sync error",
           );
+          logger.error("AWS sync failed", {
+            awsAccountId: awsAccount.id,
+            workspaceId: awsAccount.workspaceId,
+            errorMessage: error instanceof Error ? error.message : "Unknown sync error",
+          });
           throw error;
         }
       },

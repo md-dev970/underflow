@@ -8,7 +8,17 @@ export const createAwsAccountSchema = z.object({
     .trim()
     .regex(/^arn:aws:iam::\d{12}:role\/[\w+=,.@\-_/]+$/),
   externalId: z.string().trim().min(1).max(255).optional(),
-});
+}).partial({ roleArn: true });
+
+export const updateAwsAccountSchema = z.object({
+  name: z.string().trim().min(1).max(255),
+  awsAccountId: z.string().trim().regex(/^\d{12}$/),
+  roleArn: z
+    .string()
+    .trim()
+    .regex(/^arn:aws:iam::\d{12}:role\/[\w+=,.@\-_/]+$/),
+  externalId: z.string().trim().min(1).max(255).nullable().optional(),
+}).partial({ roleArn: true });
 
 export const costQuerySchema = z.object({
   from: z.string().date(),

@@ -106,4 +106,40 @@ export const workspaceRepository = {
 
     return Boolean(result.rows[0]);
   },
+
+  async deleteById(id: string): Promise<void> {
+    await pool.query(`DELETE FROM workspaces WHERE id = $1`, [id]);
+  },
+
+  async getDeletionImpact(id: string): Promise<{
+    deletedAwsAccountCount: number;
+    deletedAlertCount: number;
+    deletedSnapshotCount: number;
+    deletedSyncRunCount: number;
+    deletedNotificationCount: number;
+  }> {
+    const result = await pool.query(
+      `SELECT
+         (SELECT COUNT(*) FROM aws_accounts WHERE workspace_id = $1) AS deleted_aws_account_count,
+         (SELECT COUNT(*) FROM budget_alerts WHERE workspace_id = $1) AS deleted_alert_count,
+         (SELECT COUNT(*) FROM cost_snapshots WHERE workspace_id = $1) AS deleted_snapshot_count,
+         (SELECT COUNT(*)
+            FROM cost_sync_runs csr
+            INNER JOIN aws_accounts aa ON aa.id = csr.aws_account_id
+           WHERE aa.workspace_id = $1) AS deleted_sync_run_count,
+         (SELECT COUNT(*)
+            FROM notification_deliveries nd
+            INNER JOIN alert_events ae ON ae.id = nd.alert_event_id
+           WHERE ae.workspace_id = $1) AS deleted_notification_count`,
+      [id],
+    );
+
+    return {
+      deletedAwsAccountCount: Number(result.rows[0]?.deleted_aws_account_count ?? 0),
+      deletedAlertCount: Number(result.rows[0]?.deleted_alert_count ?? 0),
+      deletedSnapshotCount: Number(result.rows[0]?.deleted_snapshot_count ?? 0),
+      deletedSyncRunCount: Number(result.rows[0]?.deleted_sync_run_count ?? 0),
+      deletedNotificationCount: Number(result.rows[0]?.deleted_notification_count ?? 0),
+    };
+  },
 };

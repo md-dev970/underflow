@@ -15,8 +15,23 @@ export interface AwsAccount {
 export interface CreateAwsAccountInput {
   name: string;
   awsAccountId: string;
-  roleArn: string;
+  roleArn?: string | undefined;
   externalId?: string | undefined;
+}
+
+export interface UpdateAwsAccountInput {
+  name: string;
+  awsAccountId: string;
+  roleArn?: string | undefined;
+  externalId?: string | null | undefined;
+}
+
+export interface DeletedAwsAccountResult {
+  id: string;
+  workspaceId: string;
+  deletedAlertCount: number;
+  deletedSyncRunCount: number;
+  deletedSnapshotCount: number;
 }
 
 export interface CostSyncResult {

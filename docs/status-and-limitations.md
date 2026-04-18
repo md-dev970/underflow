@@ -13,11 +13,18 @@ Underflow is intentionally public as an in-progress, production-style engineerin
 - Cost-monitoring, AWS account, alert, and notification application surfaces
 - Terraform setup for SES/domain bootstrap on a delegated project subdomain
 
+### Newly covered for first real users
+
+- workspace and AWS account destructive cleanup flows
+- provider-backed password reset delivery that fails safely from the user perspective
+- standardized AWS onboarding around a fixed customer role name
+- structured operational logging for sync, alert, account, and password-reset lifecycle events
+
 ### Still under active development
 
 - Real AWS AssumeRole and Cost Explorer validation against live accounts
 - Alert evaluation against real synced production-like data
-- Full SES-backed email delivery validation end to end
+- Full deployed alert-email validation end to end
 - Production deployment strategy and operational rollout
 - Final billing and provider hardening
 

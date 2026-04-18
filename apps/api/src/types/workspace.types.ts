@@ -16,3 +16,12 @@ export interface UpdateWorkspaceInput {
   name?: string | undefined;
   slug?: string | undefined;
 }
+
+export interface DeletedWorkspaceResult {
+  id: string;
+  deletedAwsAccountCount: number;
+  deletedAlertCount: number;
+  deletedSnapshotCount: number;
+  deletedSyncRunCount: number;
+  deletedNotificationCount: number;
+}

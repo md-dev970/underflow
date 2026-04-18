@@ -38,6 +38,8 @@ Optional real-integration values:
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 - `AWS_REGION`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
 - `AWS_SES_REGION`
 - `AWS_SES_ACCESS_KEY_ID`
 - `AWS_SES_SECRET_ACCESS_KEY`
@@ -46,6 +48,12 @@ Optional real-integration values:
 - `AUTH_EMAIL_FROM`
 
 By default, the example file is set up for local development-oriented behavior and keeps billing disabled.
+
+For local AWS validation:
+
+- use a separate local-dev IAM identity or AWS profile
+- keep production-style runtime roles for deployed environments
+- customers can usually use the standard role name `UnderflowCostExplorerRead`, so local onboarding only needs account ID + external ID unless you are testing a custom ARN path
 
 ### Web
 

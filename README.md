@@ -171,6 +171,8 @@ npm test
 See:
 
 - [docs/local-development.md](./docs/local-development.md)
+- [docs/production-operations.md](./docs/production-operations.md)
+- [docs/customer-aws-onboarding.md](./docs/customer-aws-onboarding.md)
 - [docs/status-and-limitations.md](./docs/status-and-limitations.md)
 - [`infra/terraform/README.md`](./infra/terraform/README.md)
 

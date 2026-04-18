@@ -19,4 +19,18 @@ export const workspacesApi = {
       body: payload,
       requireAuth: true,
     }),
+  remove: (workspaceId: string) =>
+    apiRequest<{
+      deleted: {
+        id: string;
+        deletedAwsAccountCount: number;
+        deletedAlertCount: number;
+        deletedSnapshotCount: number;
+        deletedSyncRunCount: number;
+        deletedNotificationCount: number;
+      };
+    }>(`/workspaces/${workspaceId}`, {
+      method: "DELETE",
+      requireAuth: true,
+    }),
 };

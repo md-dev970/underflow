@@ -7,6 +7,7 @@ import { useToast } from "../../features/toast";
 import { useAsyncData } from "../../hooks/useAsyncData";
 import { awsAccountsApi } from "../../lib/api/aws-accounts";
 import { formatDate } from "../../lib/format";
+import type { AwsAccount } from "../../types/api";
 import styles from "./workspace-pages.module.css";
 
 export const AwsAccountsPage = (): JSX.Element => {
@@ -48,6 +49,32 @@ export const AwsAccountsPage = (): JSX.Element => {
     }
   };
 
+  const handleDisconnect = async (account: AwsAccount) => {
+    const confirmed = window.confirm(
+      `Disconnect ${account.name}? This removes AWS-account-scoped alerts, sync history, and synced cost snapshots for ${account.awsAccountId}.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const result = await awsAccountsApi.remove(account.id);
+      showToast({
+        title: "AWS account disconnected",
+        description: `Removed ${result.deleted.deletedAlertCount} alerts, ${result.deleted.deletedSyncRunCount} sync runs, and ${result.deleted.deletedSnapshotCount} synced records.`,
+        tone: "success",
+      });
+      await accounts.reload();
+    } catch (error) {
+      showToast({
+        title: "Disconnect failed",
+        description: error instanceof Error ? error.message : "Unable to disconnect account",
+        tone: "danger",
+      });
+    }
+  };
+
   if (accounts.isLoading) {
     return <Skeleton height={320} />;
   }
@@ -56,13 +83,20 @@ export const AwsAccountsPage = (): JSX.Element => {
 
   return (
     <div className={styles.page}>
+      <div className={styles.pageContextRow}>
+        <Link className={styles.contextLink} to={`/app/workspaces/${workspaceId}`}>
+          Back to workspace
+        </Link>
+        <span className={styles.contextMeta}>Workspace-scoped AWS account registry</span>
+      </div>
+
       <PageHeader
         actions={
           <Link to={`/app/workspaces/${workspaceId}/aws-accounts/connect`}>
             <Button>Connect AWS account</Button>
           </Link>
         }
-        description="Manage the AWS accounts linked to this workspace, verify the AssumeRole setup, and trigger cost syncs."
+        description="Manage the AWS accounts linked to this workspace, verify the AssumeRole setup, trigger cost syncs, and disconnect accounts when you need to clean up test data."
         title="AWS Accounts"
       />
 
@@ -80,11 +114,12 @@ export const AwsAccountsPage = (): JSX.Element => {
           <p className={styles.metricMeta}>AssumeRole links that passed verification successfully.</p>
         </article>
         <article className={styles.metricCardHighlight}>
-          <span className={styles.metricLabel}>Coverage</span>
-          <strong className={styles.metricValueSmall}>
-            {accounts.data?.length ? Math.round((verified / accounts.data.length) * 100) : 0}%
-          </strong>
-          <p className={styles.metricMeta}>Readiness of this workspace for full cost monitoring.</p>
+          <span className={styles.metricLabel}>Standard Role</span>
+          <strong className={styles.metricValueSmall}>UnderflowCostExplorerRead</strong>
+          <p className={styles.metricMeta}>
+            New customer connections can use account ID plus external ID by default when this role
+            name is used.
+          </p>
         </article>
       </section>
 
@@ -132,6 +167,18 @@ export const AwsAccountsPage = (): JSX.Element => {
               </div>
 
               <div className={styles.accountBoardActions}>
+                <Link to={`/app/workspaces/${workspaceId}/aws-accounts/${account.id}/edit`}>
+                  <Button size="sm" variant="ghost">
+                    Edit
+                  </Button>
+                </Link>
+                <Button
+                  onClick={() => void handleDisconnect(account)}
+                  size="sm"
+                  variant="danger"
+                >
+                  Disconnect
+                </Button>
                 <Button onClick={() => void handleVerify(account.id)} size="sm" variant="secondary">
                   Verify
                 </Button>

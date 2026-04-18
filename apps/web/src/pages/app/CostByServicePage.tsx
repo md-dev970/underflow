@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import { BarChartCard } from "../../components/charts/ChartCard";
 import { EmptyState, InlineAlert, Skeleton } from "../../components/feedback/Feedback";
+import { Button } from "../../components/forms/Button";
 import { Input } from "../../components/forms/Fields";
 import { PageHeader } from "../../components/layout/Sections";
 import { useAsyncData } from "../../hooks/useAsyncData";
@@ -49,7 +50,12 @@ export const CostByServicePage = (): JSX.Element => {
 
       {services.length === 0 ? (
         <EmptyState
-          description="Sync a connected AWS account to populate service-level cost records."
+          action={
+            <Link to={`/app/workspaces/${workspaceId}/aws-accounts`}>
+              <Button>Review AWS accounts</Button>
+            </Link>
+          }
+          description="Sync a connected AWS account to populate service-level cost records. If verification already passed, check whether Cost Explorer is enabled and has data available."
           title="No service-level records"
         />
       ) : (

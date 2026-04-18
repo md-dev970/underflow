@@ -28,7 +28,14 @@ export const alertService = {
     input: CreateBudgetAlertInput,
   ): Promise<BudgetAlert> {
     await workspaceService.ensureUserHasAccess(workspaceId, userId);
-    return alertRepository.create(workspaceId, input);
+    const alert = await alertRepository.create(workspaceId, input);
+    logger.info("Alert created", {
+      userId,
+      workspaceId,
+      alertId: alert.id,
+      awsAccountId: alert.awsAccountId,
+    });
+    return alert;
   },
 
   async listForWorkspace(workspaceId: string, userId: string): Promise<BudgetAlert[]> {
@@ -48,7 +55,14 @@ export const alertService = {
     }
 
     await workspaceService.ensureUserHasAccess(alert.workspaceId, userId);
-    return alertRepository.updateById(alertId, input);
+    const updatedAlert = await alertRepository.updateById(alertId, input);
+    logger.info("Alert updated", {
+      userId,
+      workspaceId: updatedAlert.workspaceId,
+      alertId: updatedAlert.id,
+      awsAccountId: updatedAlert.awsAccountId,
+    });
+    return updatedAlert;
   },
 
   async deleteForUser(alertId: string, userId: string): Promise<void> {
@@ -60,6 +74,12 @@ export const alertService = {
 
     await workspaceService.ensureUserHasAccess(alert.workspaceId, userId);
     await alertRepository.deleteById(alertId);
+    logger.info("Alert deleted", {
+      userId,
+      workspaceId: alert.workspaceId,
+      alertId,
+      awsAccountId: alert.awsAccountId,
+    });
   },
 
   async evaluateActiveAlerts(): Promise<void> {

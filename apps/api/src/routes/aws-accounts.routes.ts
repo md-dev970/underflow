@@ -25,6 +25,23 @@ awsAccountsRouter.get(
   authMiddleware,
   asyncHandler(awsAccountController.list),
 );
+awsAccountsRouter.get(
+  "/aws-accounts/:id",
+  authMiddleware,
+  asyncHandler(awsAccountController.get),
+);
+awsAccountsRouter.patch(
+  "/aws-accounts/:id",
+  mutationRateLimit,
+  authMiddleware,
+  asyncHandler(awsAccountController.update),
+);
+awsAccountsRouter.delete(
+  "/aws-accounts/:id",
+  mutationRateLimit,
+  authMiddleware,
+  asyncHandler(awsAccountController.remove),
+);
 awsAccountsRouter.post(
   "/aws-accounts/:id/verify",
   mutationRateLimit,

@@ -17,3 +17,4 @@ workspacesRouter.post("/", mutationRateLimit, authMiddleware, asyncHandler(works
 workspacesRouter.get("/", authMiddleware, asyncHandler(workspaceController.list));
 workspacesRouter.get("/:id", authMiddleware, asyncHandler(workspaceController.get));
 workspacesRouter.patch("/:id", mutationRateLimit, authMiddleware, asyncHandler(workspaceController.update));
+workspacesRouter.delete("/:id", mutationRateLimit, authMiddleware, asyncHandler(workspaceController.remove));

@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import { LineChartCard } from "../../components/charts/ChartCard";
 import { EmptyState, InlineAlert, Skeleton } from "../../components/feedback/Feedback";
+import { Button } from "../../components/forms/Button";
 import { Input } from "../../components/forms/Fields";
 import { PageHeader } from "../../components/layout/Sections";
 import { useAsyncData } from "../../hooks/useAsyncData";
@@ -50,7 +51,12 @@ export const CostTimeseriesPage = (): JSX.Element => {
 
       {points.length === 0 ? (
         <EmptyState
-          description="Run a sync to build a historical trend for this workspace."
+          action={
+            <Link to={`/app/workspaces/${workspaceId}/sync-history`}>
+              <Button>Open sync history</Button>
+            </Link>
+          }
+          description="Run a sync to build a historical trend for this workspace. If the sync still returns nothing, confirm Cost Explorer has recent data in the connected AWS account."
           title="No time-series points"
         />
       ) : (

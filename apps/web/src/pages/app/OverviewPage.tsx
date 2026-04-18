@@ -1,4 +1,13 @@
 import { useEffect } from "react";
+import {
+  BellRing,
+  Database,
+  Landmark,
+  Network,
+  ServerCog,
+  TrendingUp,
+  Wallet,
+} from "lucide-react";
 import { Area, AreaChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -98,6 +107,7 @@ export const OverviewPage = (): JSX.Element => {
   }
 
   const data = overview.data;
+  const hasAccounts = (data?.accounts.length ?? 0) > 0;
   const activeAlerts = data?.alerts.filter((alert) => alert.isActive).length ?? 0;
   const chartData = (data?.points ?? []).map((point) => ({
     label: point.usageDate.slice(5),
@@ -129,8 +139,14 @@ export const OverviewPage = (): JSX.Element => {
               Last 90 Days
             </button>
           </div>
-          <Link to={`/app/workspaces/${activeWorkspace.id}/aws-accounts`}>
-            <Button>Sync Now</Button>
+          <Link
+            to={
+              hasAccounts
+                ? `/app/workspaces/${activeWorkspace.id}/aws-accounts`
+                : `/app/workspaces/${activeWorkspace.id}/aws-accounts/connect`
+            }
+          >
+            <Button>{hasAccounts ? "Open AWS Accounts" : "Connect AWS account"}</Button>
           </Link>
         </div>
       </div>
@@ -139,7 +155,9 @@ export const OverviewPage = (): JSX.Element => {
         <article className={styles.kpiCard}>
           <div className={styles.kpiTop}>
             <p className={styles.kpiLabel}>Total Spend (MTD)</p>
-            <span className={styles.kpiIcon}>Payments</span>
+            <span className={styles.kpiIcon}>
+              <Wallet size={16} strokeWidth={2.2} />
+            </span>
           </div>
           <div className={styles.kpiValueRow}>
             <h3 className={styles.kpiValue}>
@@ -155,7 +173,9 @@ export const OverviewPage = (): JSX.Element => {
         <article className={styles.kpiCard}>
           <div className={styles.kpiTop}>
             <p className={styles.kpiLabel}>Projected End</p>
-            <span className={styles.kpiIcon}>Insights</span>
+            <span className={styles.kpiIcon}>
+              <TrendingUp size={16} strokeWidth={2.2} />
+            </span>
           </div>
           <h3 className={styles.kpiValue}>
             {formatCurrency((data?.summaryTotal ?? 0) * 2.9, data?.currency)}
@@ -167,7 +187,7 @@ export const OverviewPage = (): JSX.Element => {
           <div className={styles.kpiTop}>
             <p className={styles.kpiLabel}>Active Alerts</p>
             <span className={styles.kpiIcon} style={{ color: "var(--color-danger)" }}>
-              Alerts
+              <BellRing size={16} strokeWidth={2.2} />
             </span>
           </div>
           <div className={styles.kpiValueRow}>
@@ -185,7 +205,9 @@ export const OverviewPage = (): JSX.Element => {
         <article className={styles.kpiCard}>
           <div className={styles.kpiTop}>
             <p className={styles.kpiLabel}>Accounts</p>
-            <span className={styles.kpiIcon}>Hub</span>
+            <span className={styles.kpiIcon}>
+              <Landmark size={16} strokeWidth={2.2} />
+            </span>
           </div>
           <h3 className={styles.kpiValue}>{data?.accounts.length ?? 0}</h3>
           <div className={styles.kpiMiniStack}>
@@ -371,8 +393,16 @@ export const OverviewPage = (): JSX.Element => {
               <div className={styles.driversList}>
                 {topDrivers.map((service, index) => (
                   <div className={styles.driverItem} key={service.serviceName}>
-                    <div className={styles.driverLeft}>
-                      <div className={styles.driverIcon}>{index === 0 ? "DB" : index === 1 ? "NET" : "CPU"}</div>
+                      <div className={styles.driverLeft}>
+                      <div className={styles.driverIcon}>
+                        {index === 0 ? (
+                          <Database size={16} strokeWidth={2.2} />
+                        ) : index === 1 ? (
+                          <Network size={16} strokeWidth={2.2} />
+                        ) : (
+                          <ServerCog size={16} strokeWidth={2.2} />
+                        )}
+                      </div>
                       <div>
                         <p className={styles.driverName}>{service.serviceName}</p>
                         <p className={styles.driverMeta}>

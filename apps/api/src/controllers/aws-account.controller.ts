@@ -10,6 +10,7 @@ import {
   createAwsAccountSchema,
   syncHistoryQuerySchema,
   syncAwsAccountSchema,
+  updateAwsAccountSchema,
 } from "../validators/aws-account.schemas.js";
 
 const toSyncRangeInput = (
@@ -57,6 +58,40 @@ export const awsAccountController = {
     );
 
     res.status(200).json({ awsAccounts });
+  },
+
+  async get(req: Request, res: Response): Promise<void> {
+    if (!req.user) {
+      throw new AppError("Unauthorized", 401);
+    }
+
+    const awsAccountId = requireRouteParam(req.params.id, "id");
+    const awsAccount = await awsAccountService.getForUser(awsAccountId, req.user.id);
+
+    res.status(200).json({ awsAccount });
+  },
+
+  async update(req: Request, res: Response): Promise<void> {
+    if (!req.user) {
+      throw new AppError("Unauthorized", 401);
+    }
+
+    const awsAccountId = requireRouteParam(req.params.id, "id");
+    const input = validate(updateAwsAccountSchema, req.body);
+    const awsAccount = await awsAccountService.updateForUser(awsAccountId, req.user.id, input);
+
+    res.status(200).json({ awsAccount });
+  },
+
+  async remove(req: Request, res: Response): Promise<void> {
+    if (!req.user) {
+      throw new AppError("Unauthorized", 401);
+    }
+
+    const awsAccountId = requireRouteParam(req.params.id, "id");
+    const deleted = await awsAccountService.deleteForUser(awsAccountId, req.user.id);
+
+    res.status(200).json({ deleted });
   },
 
   async verify(req: Request, res: Response): Promise<void> {

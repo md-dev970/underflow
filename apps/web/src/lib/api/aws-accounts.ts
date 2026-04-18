@@ -8,6 +8,10 @@ import type {
 } from "../../types/api";
 
 export const awsAccountsApi = {
+  get: (awsAccountId: string) =>
+    apiRequest<{ awsAccount: AwsAccount }>(`/aws-accounts/${awsAccountId}`, {
+      requireAuth: true,
+    }),
   list: (workspaceId: string) =>
     apiRequest<{ awsAccounts: AwsAccount[] }>(
       `/workspaces/${workspaceId}/aws-accounts`,
@@ -18,7 +22,7 @@ export const awsAccountsApi = {
     payload: {
       name: string;
       awsAccountId: string;
-      roleArn: string;
+      roleArn?: string;
       externalId?: string;
     },
   ) =>
@@ -30,6 +34,33 @@ export const awsAccountsApi = {
         requireAuth: true,
       },
     ),
+  update: (
+    awsAccountId: string,
+    payload: {
+      name: string;
+      awsAccountId: string;
+      roleArn?: string;
+      externalId?: string | null;
+    },
+  ) =>
+    apiRequest<{ awsAccount: AwsAccount }>(`/aws-accounts/${awsAccountId}`, {
+      method: "PATCH",
+      body: payload,
+      requireAuth: true,
+    }),
+  remove: (awsAccountId: string) =>
+    apiRequest<{
+      deleted: {
+        id: string;
+        workspaceId: string;
+        deletedAlertCount: number;
+        deletedSyncRunCount: number;
+        deletedSnapshotCount: number;
+      };
+    }>(`/aws-accounts/${awsAccountId}`, {
+      method: "DELETE",
+      requireAuth: true,
+    }),
   verify: (awsAccountId: string) =>
     apiRequest<{ awsAccount: AwsAccount }>(`/aws-accounts/${awsAccountId}/verify`, {
       method: "POST",

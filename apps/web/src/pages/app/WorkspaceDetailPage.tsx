@@ -1,4 +1,5 @@
 import { Link, useParams } from "react-router-dom";
+import { CloudCog } from "lucide-react";
 
 import { EmptyState, RouteError, RouteLoading } from "../../components/feedback/Feedback";
 import { Button } from "../../components/forms/Button";
@@ -94,11 +95,14 @@ export const WorkspaceDetailPage = (): JSX.Element => {
 
       <section className={styles.detailGrid}>
         <article className={styles.detailCard}>
-          <div className={styles.cardHeaderSimple}>
+          <div className={styles.sectionHeaderRow}>
             <div>
               <h2 className={styles.sectionTitle}>Connected AWS accounts</h2>
               <p className={styles.sectionBody}>Track status, verification, and sync recency.</p>
             </div>
+            <Link className={styles.sectionLink} to={`/app/workspaces/${workspace.id}/aws-accounts`}>
+              Manage accounts
+            </Link>
           </div>
 
           {accounts.length === 0 ? (
@@ -116,7 +120,9 @@ export const WorkspaceDetailPage = (): JSX.Element => {
               {accounts.map((account) => (
                 <div className={styles.accountRow} key={account.id}>
                   <div className={styles.accountIdentity}>
-                    <div className={styles.accountBadge}>AWS</div>
+                    <div className={styles.accountBadge}>
+                      <CloudCog size={16} strokeWidth={2.2} />
+                    </div>
                     <div>
                       <strong>{account.name}</strong>
                       <span>{account.awsAccountId}</span>

@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { InlineAlert } from "../../components/feedback/Feedback";
 import { Button } from "../../components/forms/Button";
@@ -11,11 +12,13 @@ import { workspacesApi } from "../../lib/api/workspaces";
 import styles from "./operations-pages.module.css";
 
 export const WorkspaceSettingsPage = (): JSX.Element => {
-  const { activeWorkspace, refreshWorkspaces } = useWorkspace();
+  const navigate = useNavigate();
+  const { activeWorkspace, refreshWorkspaces, setActiveWorkspaceId } = useWorkspace();
   const { showToast } = useToast();
   const [form, setForm] = useState({ name: "", slug: "" });
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (activeWorkspace) {
@@ -41,6 +44,39 @@ export const WorkspaceSettingsPage = (): JSX.Element => {
       setError(submitError instanceof Error ? submitError.message : "Unable to update workspace");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!activeWorkspace) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Delete ${activeWorkspace.name}? This removes every connected AWS account, alert, notification, sync run, and synced cost record in the workspace.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setError(null);
+    setIsDeleting(true);
+
+    try {
+      const result = await workspacesApi.remove(activeWorkspace.id);
+      setActiveWorkspaceId(null);
+      await refreshWorkspaces();
+      showToast({
+        title: "Workspace deleted",
+        description: `Removed ${result.deleted.deletedAwsAccountCount} AWS accounts, ${result.deleted.deletedAlertCount} alerts, and ${result.deleted.deletedNotificationCount} notifications.`,
+        tone: "success",
+      });
+      navigate("/app/workspaces");
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Unable to delete workspace");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -133,9 +169,14 @@ export const WorkspaceSettingsPage = (): JSX.Element => {
       <section className={styles.dangerCard}>
         <h2 className={styles.dangerTitle}>Danger zone</h2>
         <p className={styles.dangerText}>
-          Destructive workspace actions are intentionally not exposed yet in the public repo.
-          This section is reserved for future archive and delete flows.
+          Deleting a workspace permanently removes every connected AWS account, alert,
+          notification delivery, sync run, and synced cost snapshot tied to it.
         </p>
+        <div className={styles.formFooter} style={{ marginTop: "1rem" }}>
+          <Button disabled={isDeleting} onClick={() => void handleDelete()} variant="danger">
+            {isDeleting ? "Deleting..." : "Delete workspace"}
+          </Button>
+        </div>
       </section>
     </div>
   );

@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import { BarChartCard, DonutChartCard } from "../../components/charts/ChartCard";
 import { EmptyState, InlineAlert, Skeleton } from "../../components/feedback/Feedback";
+import { Button } from "../../components/forms/Button";
 import { Input, Select } from "../../components/forms/Fields";
 import { PageHeader } from "../../components/layout/Sections";
 import { useAsyncData } from "../../hooks/useAsyncData";
@@ -111,7 +112,17 @@ export const CostSummaryPage = (): JSX.Element => {
 
       {services.length === 0 ? (
         <EmptyState
-          description="There is no synced cost data for this filter range yet."
+          action={
+            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", justifyContent: "center" }}>
+              <Link to={`/app/workspaces/${workspaceId}/aws-accounts`}>
+                <Button>Review AWS accounts</Button>
+              </Link>
+              <Link to={`/app/workspaces/${workspaceId}/sync-history`}>
+                <Button variant="secondary">Open sync history</Button>
+              </Link>
+            </div>
+          }
+          description="There is no synced cost data for this filter range yet. Verify the AWS role, confirm Cost Explorer is enabled, then run another sync."
           title="No cost data returned"
         />
       ) : (

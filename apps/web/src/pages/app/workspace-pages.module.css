@@ -3,6 +3,35 @@
   gap: 1.75rem;
 }
 
+.pageContextRow,
+.sectionHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.sectionHeaderRow {
+  margin-bottom: 1.35rem;
+}
+
+.contextLink,
+.sectionLink {
+  color: var(--color-primary);
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.contextMeta {
+  color: var(--color-text-subtle);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
 .metricsGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -96,6 +125,13 @@
   max-width: 40rem;
   color: var(--color-text-muted);
   line-height: 1.6;
+}
+
+.helperNote {
+  margin: 0.8rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
 }
 
 .inlineCreateForm,

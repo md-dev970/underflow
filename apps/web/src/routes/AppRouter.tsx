@@ -159,6 +159,10 @@ export const AppRouter = (): JSX.Element => (
         path="workspaces/:workspaceId/aws-accounts/connect"
       />
       <Route
+        element={withFallback(<ConnectAwsAccountPage />, <AppRouteFallback />)}
+        path="workspaces/:workspaceId/aws-accounts/:awsAccountId/edit"
+      />
+      <Route
         element={withFallback(<CostSummaryPage />, <AppRouteFallback />)}
         path="workspaces/:workspaceId/costs/summary"
       />
