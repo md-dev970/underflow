@@ -9,6 +9,11 @@ import { RequireAuth, RequireGuest } from "./guards";
 const LandingPage = lazy(async () =>
   import("../pages/public/LandingPage").then((module) => ({ default: module.LandingPage })),
 );
+const MiniProductsPage = lazy(async () =>
+  import("../pages/public/MiniProductsPage").then((module) => ({
+    default: module.MiniProductsPage,
+  })),
+);
 const LoginPage = lazy(async () =>
   import("../pages/auth/LoginPage").then((module) => ({ default: module.LoginPage })),
 );
@@ -109,6 +114,10 @@ const withFallback = (page: JSX.Element, fallback: JSX.Element): JSX.Element => 
 export const AppRouter = (): JSX.Element => (
   <Routes>
     <Route element={withFallback(<LandingPage />, <AuthRouteFallback />)} path="/" />
+    <Route
+      element={withFallback(<MiniProductsPage />, <AuthRouteFallback />)}
+      path="/mini-products"
+    />
     <Route
       element={
         <RequireGuest>

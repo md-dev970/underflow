@@ -60,7 +60,7 @@
 
 .rangeActive {
   background: white;
-  color: var(--color-text);
+  color: #111318;
   box-shadow: 0 10px 20px color-mix(in srgb, var(--color-shadow) 70%, transparent);
 }
 

@@ -23,6 +23,7 @@ interface RequestOptions {
 }
 
 let csrfTokenCache: string | null = null;
+let refreshSessionPromise: Promise<void> | null = null;
 
 export const AUTH_SESSION_EXPIRED_EVENT = "underflow:auth-session-expired";
 
@@ -71,16 +72,17 @@ const notifySessionExpired = (): void => {
   window.dispatchEvent(new CustomEvent(AUTH_SESSION_EXPIRED_EVENT));
 };
 
-export const apiRequest = async <T>(
-  path: string,
-  options: RequestOptions = {},
-): Promise<T> => {
+const createRequestInit = async (options: RequestOptions): Promise<RequestInit> => {
   const headers = new Headers();
   const requestInit: RequestInit = {
     method: options.method ?? "GET",
     credentials: "include",
     headers,
   };
+
+  if (options.signal) {
+    requestInit.signal = options.signal;
+  }
 
   if (options.body !== undefined) {
     headers.set("Content-Type", "application/json");
@@ -91,26 +93,76 @@ export const apiRequest = async <T>(
     headers.set("x-csrf-token", await ensureCsrfToken());
   }
 
-  if (options.signal) {
-    requestInit.signal = options.signal;
+  return requestInit;
+};
+
+const sendRequest = async (path: string, requestInit: RequestInit): Promise<Response> =>
+  fetch(`${appConfig.apiUrl}${path}`, requestInit);
+
+const refreshAuthSession = async (): Promise<void> => {
+  if (refreshSessionPromise) {
+    return refreshSessionPromise;
   }
 
-  const response = await fetch(`${appConfig.apiUrl}${path}`, requestInit);
+  refreshSessionPromise = (async () => {
+    const response = await sendRequest(
+      "/auth/refresh-token",
+      await createRequestInit({
+        method: "POST",
+        csrf: true,
+        body: {},
+      }),
+    );
+
+    if (response.status === 403) {
+      await getCsrfToken();
+      const retryInit = await createRequestInit({
+        method: "POST",
+        csrf: true,
+        body: {},
+      });
+      const retryResponse = await sendRequest("/auth/refresh-token", retryInit);
+      await parseResponse<{ user: unknown }>(retryResponse);
+      return;
+    }
+
+    await parseResponse<{ user: unknown }>(response);
+  })().finally(() => {
+    refreshSessionPromise = null;
+  });
+
+  return refreshSessionPromise;
+};
+
+export const apiRequest = async <T>(
+  path: string,
+  options: RequestOptions = {},
+  hasRetriedAuth = false,
+): Promise<T> => {
+  const requestInit = await createRequestInit(options);
+  const response = await sendRequest(path, requestInit);
 
   if (options.csrf && response.status === 403) {
-    headers.set("x-csrf-token", await getCsrfToken());
-    const retryInit: RequestInit = {
-      ...requestInit,
-      headers,
-    };
-    const retryResponse = await fetch(`${appConfig.apiUrl}${path}`, retryInit);
+    await getCsrfToken();
+    const retryInit = await createRequestInit(options);
+    const retryResponse = await sendRequest(path, retryInit);
 
     return parseResponse<T>(retryResponse);
   }
 
-  if (options.requireAuth && response.status === 401) {
-    clearCsrfToken();
-    notifySessionExpired();
+  if (options.requireAuth && response.status === 401 && path !== "/auth/refresh-token") {
+    if (!hasRetriedAuth) {
+      try {
+        await refreshAuthSession();
+        return apiRequest<T>(path, options, true);
+      } catch {
+        clearCsrfToken();
+        notifySessionExpired();
+      }
+    } else {
+      clearCsrfToken();
+      notifySessionExpired();
+    }
   }
 
   return parseResponse<T>(response);

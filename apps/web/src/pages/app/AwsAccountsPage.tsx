@@ -1,3 +1,4 @@
+import { Copy } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 
 import { EmptyState, InlineAlert, Skeleton } from "../../components/feedback/Feedback";
@@ -13,6 +14,7 @@ import styles from "./workspace-pages.module.css";
 export const AwsAccountsPage = (): JSX.Element => {
   const { workspaceId = "" } = useParams();
   const { showToast } = useToast();
+  const standardRoleName = "UnderflowCostExplorerRead";
   const accounts = useAsyncData(
     async () => {
       const result = await awsAccountsApi.list(workspaceId);
@@ -75,6 +77,23 @@ export const AwsAccountsPage = (): JSX.Element => {
     }
   };
 
+  const handleCopyRoleName = async () => {
+    try {
+      await navigator.clipboard.writeText(standardRoleName);
+      showToast({
+        title: "Role name copied",
+        description: "Paste it into the customer's IAM role setup.",
+        tone: "success",
+      });
+    } catch {
+      showToast({
+        title: "Copy failed",
+        description: "Unable to copy the role name from this browser.",
+        tone: "danger",
+      });
+    }
+  };
+
   if (accounts.isLoading) {
     return <Skeleton height={320} />;
   }
@@ -115,7 +134,17 @@ export const AwsAccountsPage = (): JSX.Element => {
         </article>
         <article className={styles.metricCardHighlight}>
           <span className={styles.metricLabel}>Standard Role</span>
-          <strong className={styles.metricValueSmall}>UnderflowCostExplorerRead</strong>
+          <div className={styles.metricValueRow}>
+            <strong className={styles.metricValueTiny}>{standardRoleName}</strong>
+            <button
+              aria-label="Copy standard role name"
+              className={styles.metricCopyButton}
+              onClick={() => void handleCopyRoleName()}
+              type="button"
+            >
+              <Copy size={14} strokeWidth={2.2} />
+            </button>
+          </div>
           <p className={styles.metricMeta}>
             New customer connections can use account ID plus external ID by default when this role
             name is used.
