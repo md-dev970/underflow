@@ -1,0 +1,96 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  api:
+    name: API build and tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: underflow_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d underflow_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/underflow_test
+      TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/underflow_test
+      CSRF_SECRET: ci-csrf-secret
+      JWT_ACCESS_SECRET: ci-access-secret
+      JWT_REFRESH_SECRET: ci-refresh-secret
+      CLIENT_URL: http://localhost:5174
+      AWS_REGION: us-east-1
+      AWS_SES_REGION: us-east-1
+      EMAIL_PROVIDER: console
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/api/package-lock.json
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - run: npm run test:db
+
+  web:
+    name: Web build and tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    env:
+      VITE_API_URL: /api/v1
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+  api-docker:
+    name: API Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f apps/api/Dockerfile apps/api
+
+  terraform:
+    name: Terraform fmt and validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+
+      - run: terraform -chdir=infra/terraform fmt -check -recursive
+      - run: terraform -chdir=infra/terraform/envs/bootstrap-cicd init -backend=false
+      - run: terraform -chdir=infra/terraform/envs/bootstrap-cicd validate
+      - run: terraform -chdir=infra/terraform/envs/production init -backend=false
+      - run: terraform -chdir=infra/terraform/envs/production validate
