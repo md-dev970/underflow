@@ -149,17 +149,24 @@ jobs:
           echo "api_service=$(terraform output -raw api_service_name)" >> $GITHUB_OUTPUT
           echo "worker_service=$(terraform output -raw worker_service_name)" >> $GITHUB_OUTPUT
           echo "migration_task=$(terraform output -raw migration_task_definition_arn)" >> $GITHUB_OUTPUT
-          echo "subnets=$(terraform output -json private_subnet_ids | jq -r 'join(\",\")')" >> $GITHUB_OUTPUT
           echo "security_group=$(terraform output -raw ecs_security_group_id)" >> $GITHUB_OUTPUT
+          echo "subnets_json<<EOF" >> $GITHUB_OUTPUT
+          terraform output -json private_subnet_ids >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Run database migrations
         id: migrate
         run: |
+          NETWORK_CONFIGURATION=$(jq -cn \
+            --argjson subnets '${{ steps.tf-outputs.outputs.subnets_json }}' \
+            --arg securityGroup '${{ steps.tf-outputs.outputs.security_group }}' \
+            '{awsvpcConfiguration:{subnets:$subnets,securityGroups:[$securityGroup],assignPublicIp:"DISABLED"}}')
+
           TASK_ARN=$(aws ecs run-task \
             --cluster "${{ steps.tf-outputs.outputs.cluster }}" \
             --launch-type FARGATE \
             --task-definition "${{ steps.tf-outputs.outputs.migration_task }}" \
-            --network-configuration "awsvpcConfiguration={subnets=[${{ steps.tf-outputs.outputs.subnets }}],securityGroups=[${{ steps.tf-outputs.outputs.security_group }}],assignPublicIp=DISABLED}" \
+            --network-configuration "$NETWORK_CONFIGURATION" \
             --query 'tasks[0].taskArn' \
             --output text)
           echo "task_arn=$TASK_ARN" >> $GITHUB_OUTPUT
