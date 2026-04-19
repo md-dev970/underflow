@@ -155,6 +155,8 @@ jobs:
         id: migrate
         working-directory: ${{ env.TF_ENV_DIR }}
         run: |
+          set -euo pipefail
+
           SUBNETS_JSON=$(terraform output -json private_subnet_ids)
           NETWORK_CONFIGURATION=$(jq -cn \
             --argjson subnets "$SUBNETS_JSON" \
@@ -170,8 +172,41 @@ jobs:
             --output text)
           echo "task_arn=$TASK_ARN" >> $GITHUB_OUTPUT
           aws ecs wait tasks-stopped --cluster "${{ steps.tf-outputs.outputs.cluster }}" --tasks "$TASK_ARN"
-          EXIT_CODE=$(aws ecs describe-tasks --cluster "${{ steps.tf-outputs.outputs.cluster }}" --tasks "$TASK_ARN" --query 'tasks[0].containers[0].exitCode' --output text)
-          test "$EXIT_CODE" = "0"
+
+          TASK_DESCRIPTION=$(aws ecs describe-tasks \
+            --cluster "${{ steps.tf-outputs.outputs.cluster }}" \
+            --tasks "$TASK_ARN" \
+            --output json)
+
+          EXIT_CODE=$(echo "$TASK_DESCRIPTION" | jq -r '.tasks[0].containers[0].exitCode // empty')
+
+          if [ "$EXIT_CODE" != "0" ]; then
+            echo "Migration task failed"
+            echo "Stopped reason: $(echo "$TASK_DESCRIPTION" | jq -r '.tasks[0].stoppedReason // "unknown"')"
+            echo "Container reason: $(echo "$TASK_DESCRIPTION" | jq -r '.tasks[0].containers[0].reason // "unknown"')"
+
+            TASK_DEFINITION=$(aws ecs describe-task-definition \
+              --task-definition "${{ steps.tf-outputs.outputs.migration_task }}" \
+              --output json)
+
+            LOG_GROUP=$(echo "$TASK_DEFINITION" | jq -r '.taskDefinition.containerDefinitions[0].logConfiguration.options["awslogs-group"] // empty')
+            LOG_PREFIX=$(echo "$TASK_DEFINITION" | jq -r '.taskDefinition.containerDefinitions[0].logConfiguration.options["awslogs-stream-prefix"] // empty')
+            CONTAINER_NAME=$(echo "$TASK_DESCRIPTION" | jq -r '.tasks[0].containers[0].name // "migrate"')
+            TASK_ID="${TASK_ARN##*/}"
+
+            if [ -n "$LOG_GROUP" ] && [ -n "$LOG_PREFIX" ]; then
+              LOG_STREAM="${LOG_PREFIX}/${CONTAINER_NAME}/${TASK_ID}"
+              echo "Recent CloudWatch logs from ${LOG_GROUP}:${LOG_STREAM}"
+              aws logs get-log-events \
+                --log-group-name "$LOG_GROUP" \
+                --log-stream-name "$LOG_STREAM" \
+                --limit 50 \
+                --query 'events[*].message' \
+                --output text || true
+            fi
+
+            exit 1
+          fi
 
       - name: Wait for ECS services
         run: |
