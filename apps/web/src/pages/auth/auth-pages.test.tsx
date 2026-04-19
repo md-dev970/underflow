@@ -5,6 +5,7 @@ import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { ToastProvider } from "../../features/toast";
 import { AuthProvider } from "../../features/auth";
 import { AUTH_SESSION_EXPIRED_EVENT, ApiError } from "../../lib/api-client";
+import { ThemeProvider } from "../../theme/ThemeProvider";
 import { ForgotPasswordPage } from "./ForgotPasswordPage";
 import { LoginPage } from "./LoginPage";
 import { ResetPasswordPage } from "./ResetPasswordPage";
@@ -103,16 +104,18 @@ test("session expiry redirects to login and shows a toast", async () => {
   });
 
   render(
-    <ToastProvider>
-      <MemoryRouter initialEntries={["/app/overview"]}>
-        <AuthProvider>
-          <Routes>
-            <Route element={<div>Overview</div>} path="/app/overview" />
-            <Route element={<LoginPage />} path="/login" />
-          </Routes>
-        </AuthProvider>
-      </MemoryRouter>
-    </ToastProvider>,
+    <ThemeProvider>
+      <ToastProvider>
+        <MemoryRouter initialEntries={["/app/overview"]}>
+          <AuthProvider>
+            <Routes>
+              <Route element={<div>Overview</div>} path="/app/overview" />
+              <Route element={<LoginPage />} path="/login" />
+            </Routes>
+          </AuthProvider>
+        </MemoryRouter>
+      </ToastProvider>
+    </ThemeProvider>,
   );
 
   await waitFor(() => {

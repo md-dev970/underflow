@@ -78,7 +78,7 @@ export const env = {
   STRIPE_SUCCESS_URL: process.env.STRIPE_SUCCESS_URL ?? "",
   STRIPE_CANCEL_URL: process.env.STRIPE_CANCEL_URL ?? "",
   BILLING_ENABLED: process.env.BILLING_ENABLED === "true",
-  AWS_REGION: process.env.AWS_REGION ?? "us-east-1",
+  AWS_REGION: process.env.AWS_REGION ?? "us-west-2",
   COST_SYNC_LOOKBACK_DAYS: Number.parseInt(
     process.env.COST_SYNC_LOOKBACK_DAYS ?? "30",
     10,
@@ -91,7 +91,7 @@ export const env = {
       String(DEFAULT_PASSWORD_RESET_EXPIRES_IN_MINUTES),
     10,
   ),
-  AWS_SES_REGION: process.env.AWS_SES_REGION ?? process.env.AWS_REGION ?? "us-east-1",
+  AWS_SES_REGION: process.env.AWS_SES_REGION ?? process.env.AWS_REGION ?? "us-west-2",
   AWS_SES_ACCESS_KEY_ID: process.env.AWS_SES_ACCESS_KEY_ID ?? "",
   AWS_SES_SECRET_ACCESS_KEY: process.env.AWS_SES_SECRET_ACCESS_KEY ?? "",
   AUTH_EMAIL_FROM: process.env.AUTH_EMAIL_FROM ?? "auth@example.com",
