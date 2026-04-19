@@ -1,0 +1,173 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  TF_ENV_DIR: infra/terraform/envs/production
+
+jobs:
+  deploy:
+    name: Terraform, image, ECS rollout
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/api/package-lock.json
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: aws-actions/amazon-ecr-login@v2
+        id: login-ecr
+
+      - name: Terraform init
+        working-directory: ${{ env.TF_ENV_DIR }}
+        env:
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          TF_STATE_LOCK_TABLE: ${{ vars.TF_STATE_LOCK_TABLE }}
+          TF_VAR_app_domain_name: ${{ vars.APP_DOMAIN_NAME }}
+          TF_VAR_route53_zone_id: ${{ vars.ROUTE53_ZONE_ID }}
+          TF_VAR_web_bucket_name: ${{ vars.WEB_BUCKET_NAME }}
+          TF_VAR_api_image_uri: bootstrap-placeholder
+          TF_VAR_worker_image_uri: bootstrap-placeholder
+          TF_VAR_db_name: ${{ vars.DB_NAME }}
+          TF_VAR_db_username: ${{ vars.DB_USERNAME }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_csrf_secret: ${{ secrets.CSRF_SECRET }}
+          TF_VAR_jwt_access_secret: ${{ secrets.JWT_ACCESS_SECRET }}
+          TF_VAR_jwt_refresh_secret: ${{ secrets.JWT_REFRESH_SECRET }}
+          TF_VAR_alert_email_from: ${{ vars.ALERT_EMAIL_FROM }}
+          TF_VAR_auth_email_from: ${{ vars.AUTH_EMAIL_FROM }}
+          TF_VAR_auth_cookie_domain: ${{ vars.AUTH_COOKIE_DOMAIN }}
+          TF_VAR_auth_cookie_same_site: ${{ vars.AUTH_COOKIE_SAME_SITE }}
+          TF_VAR_cost_sync_lookback_days: ${{ vars.COST_SYNC_LOOKBACK_DAYS }}
+          TF_VAR_aws_ses_region: ${{ vars.AWS_SES_REGION }}
+          TF_VAR_email_provider: ${{ vars.EMAIL_PROVIDER }}
+          TF_VAR_billing_enabled: ${{ vars.BILLING_ENABLED }}
+          TF_VAR_stripe_secret_key: ${{ secrets.STRIPE_SECRET_KEY }}
+          TF_VAR_stripe_webhook_secret: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          TF_VAR_stripe_success_url: ${{ vars.STRIPE_SUCCESS_URL }}
+          TF_VAR_stripe_cancel_url: ${{ vars.STRIPE_CANCEL_URL }}
+          TF_VAR_log_level: ${{ vars.LOG_LEVEL }}
+          TF_VAR_rate_limit_auth_window_ms: ${{ vars.RATE_LIMIT_AUTH_WINDOW_MS }}
+          TF_VAR_rate_limit_auth_max_requests: ${{ vars.RATE_LIMIT_AUTH_MAX_REQUESTS }}
+          TF_VAR_rate_limit_mutation_window_ms: ${{ vars.RATE_LIMIT_MUTATION_WINDOW_MS }}
+          TF_VAR_rate_limit_mutation_max_requests: ${{ vars.RATE_LIMIT_MUTATION_MAX_REQUESTS }}
+        run: terraform init -backend-config="bucket=${TF_STATE_BUCKET}" -backend-config="key=production/terraform.tfstate" -backend-config="region=${AWS_REGION}" -backend-config="dynamodb_table=${TF_STATE_LOCK_TABLE}"
+
+      - name: Bootstrap ECR repository
+        working-directory: ${{ env.TF_ENV_DIR }}
+        env:
+          TF_VAR_app_domain_name: ${{ vars.APP_DOMAIN_NAME }}
+          TF_VAR_route53_zone_id: ${{ vars.ROUTE53_ZONE_ID }}
+          TF_VAR_web_bucket_name: ${{ vars.WEB_BUCKET_NAME }}
+          TF_VAR_api_image_uri: bootstrap-placeholder
+          TF_VAR_worker_image_uri: bootstrap-placeholder
+          TF_VAR_db_name: ${{ vars.DB_NAME }}
+          TF_VAR_db_username: ${{ vars.DB_USERNAME }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_csrf_secret: ${{ secrets.CSRF_SECRET }}
+          TF_VAR_jwt_access_secret: ${{ secrets.JWT_ACCESS_SECRET }}
+          TF_VAR_jwt_refresh_secret: ${{ secrets.JWT_REFRESH_SECRET }}
+          TF_VAR_alert_email_from: ${{ vars.ALERT_EMAIL_FROM }}
+          TF_VAR_auth_email_from: ${{ vars.AUTH_EMAIL_FROM }}
+        run: terraform apply -auto-approve -target=module.platform.aws_ecr_repository.app -target=module.platform.aws_ecr_lifecycle_policy.app
+
+      - name: Read ECR repository URL
+        id: tf-bootstrap
+        working-directory: ${{ env.TF_ENV_DIR }}
+        run: echo "repository_url=$(terraform output -raw ecr_repository_url)" >> $GITHUB_OUTPUT
+
+      - name: Build and push application image
+        run: |
+          docker build \
+            -f apps/api/Dockerfile \
+            -t ${{ steps.tf-bootstrap.outputs.repository_url }}:${{ github.sha }} \
+            -t ${{ steps.tf-bootstrap.outputs.repository_url }}:latest \
+            apps/api
+          docker push ${{ steps.tf-bootstrap.outputs.repository_url }}:${{ github.sha }}
+          docker push ${{ steps.tf-bootstrap.outputs.repository_url }}:latest
+
+      - name: Terraform apply
+        working-directory: ${{ env.TF_ENV_DIR }}
+        env:
+          TF_VAR_app_domain_name: ${{ vars.APP_DOMAIN_NAME }}
+          TF_VAR_route53_zone_id: ${{ vars.ROUTE53_ZONE_ID }}
+          TF_VAR_web_bucket_name: ${{ vars.WEB_BUCKET_NAME }}
+          TF_VAR_api_image_uri: ${{ steps.tf-bootstrap.outputs.repository_url }}:${{ github.sha }}
+          TF_VAR_worker_image_uri: ${{ steps.tf-bootstrap.outputs.repository_url }}:${{ github.sha }}
+          TF_VAR_db_name: ${{ vars.DB_NAME }}
+          TF_VAR_db_username: ${{ vars.DB_USERNAME }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_csrf_secret: ${{ secrets.CSRF_SECRET }}
+          TF_VAR_jwt_access_secret: ${{ secrets.JWT_ACCESS_SECRET }}
+          TF_VAR_jwt_refresh_secret: ${{ secrets.JWT_REFRESH_SECRET }}
+          TF_VAR_alert_email_from: ${{ vars.ALERT_EMAIL_FROM }}
+          TF_VAR_auth_email_from: ${{ vars.AUTH_EMAIL_FROM }}
+          TF_VAR_auth_cookie_domain: ${{ vars.AUTH_COOKIE_DOMAIN }}
+          TF_VAR_auth_cookie_same_site: ${{ vars.AUTH_COOKIE_SAME_SITE }}
+          TF_VAR_cost_sync_lookback_days: ${{ vars.COST_SYNC_LOOKBACK_DAYS }}
+          TF_VAR_aws_ses_region: ${{ vars.AWS_SES_REGION }}
+          TF_VAR_email_provider: ${{ vars.EMAIL_PROVIDER }}
+          TF_VAR_billing_enabled: ${{ vars.BILLING_ENABLED }}
+          TF_VAR_stripe_secret_key: ${{ secrets.STRIPE_SECRET_KEY }}
+          TF_VAR_stripe_webhook_secret: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          TF_VAR_stripe_success_url: ${{ vars.STRIPE_SUCCESS_URL }}
+          TF_VAR_stripe_cancel_url: ${{ vars.STRIPE_CANCEL_URL }}
+          TF_VAR_log_level: ${{ vars.LOG_LEVEL }}
+          TF_VAR_rate_limit_auth_window_ms: ${{ vars.RATE_LIMIT_AUTH_WINDOW_MS }}
+          TF_VAR_rate_limit_auth_max_requests: ${{ vars.RATE_LIMIT_AUTH_MAX_REQUESTS }}
+          TF_VAR_rate_limit_mutation_window_ms: ${{ vars.RATE_LIMIT_MUTATION_WINDOW_MS }}
+          TF_VAR_rate_limit_mutation_max_requests: ${{ vars.RATE_LIMIT_MUTATION_MAX_REQUESTS }}
+        run: terraform apply -auto-approve
+
+      - name: Read deploy outputs
+        id: tf-outputs
+        working-directory: ${{ env.TF_ENV_DIR }}
+        run: |
+          echo "cluster=$(terraform output -raw cluster_name)" >> $GITHUB_OUTPUT
+          echo "api_service=$(terraform output -raw api_service_name)" >> $GITHUB_OUTPUT
+          echo "worker_service=$(terraform output -raw worker_service_name)" >> $GITHUB_OUTPUT
+          echo "migration_task=$(terraform output -raw migration_task_definition_arn)" >> $GITHUB_OUTPUT
+          echo "subnets=$(terraform output -json private_subnet_ids | jq -r 'join(\",\")')" >> $GITHUB_OUTPUT
+          echo "security_group=$(terraform output -raw ecs_security_group_id)" >> $GITHUB_OUTPUT
+
+      - name: Run database migrations
+        id: migrate
+        run: |
+          TASK_ARN=$(aws ecs run-task \
+            --cluster "${{ steps.tf-outputs.outputs.cluster }}" \
+            --launch-type FARGATE \
+            --task-definition "${{ steps.tf-outputs.outputs.migration_task }}" \
+            --network-configuration "awsvpcConfiguration={subnets=[${{ steps.tf-outputs.outputs.subnets }}],securityGroups=[${{ steps.tf-outputs.outputs.security_group }}],assignPublicIp=DISABLED}" \
+            --query 'tasks[0].taskArn' \
+            --output text)
+          echo "task_arn=$TASK_ARN" >> $GITHUB_OUTPUT
+          aws ecs wait tasks-stopped --cluster "${{ steps.tf-outputs.outputs.cluster }}" --tasks "$TASK_ARN"
+          EXIT_CODE=$(aws ecs describe-tasks --cluster "${{ steps.tf-outputs.outputs.cluster }}" --tasks "$TASK_ARN" --query 'tasks[0].containers[0].exitCode' --output text)
+          test "$EXIT_CODE" = "0"
+
+      - name: Wait for ECS services
+        run: |
+          aws ecs wait services-stable --cluster "${{ steps.tf-outputs.outputs.cluster }}" --services "${{ steps.tf-outputs.outputs.api_service }}"
+          aws ecs wait services-stable --cluster "${{ steps.tf-outputs.outputs.cluster }}" --services "${{ steps.tf-outputs.outputs.worker_service }}"

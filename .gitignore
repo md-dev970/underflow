@@ -23,6 +23,8 @@ tfplan
 *.tfvars
 *.tfvars.json
 !*.tfvars.example
+*.hcl
+!*.hcl.example
 
 # Logs
 *.log

@@ -1,0 +1,68 @@
+name: Deploy Web
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  TF_ENV_DIR: infra/terraform/envs/production
+
+jobs:
+  deploy:
+    name: Build and publish frontend
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: apps/web
+    env:
+      VITE_API_URL: /api/v1
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Build frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Terraform init
+        working-directory: ${{ env.TF_ENV_DIR }}
+        env:
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          TF_STATE_LOCK_TABLE: ${{ vars.TF_STATE_LOCK_TABLE }}
+        run: terraform init -backend-config="bucket=${TF_STATE_BUCKET}" -backend-config="key=production/terraform.tfstate" -backend-config="region=${AWS_REGION}" -backend-config="dynamodb_table=${TF_STATE_LOCK_TABLE}"
+
+      - name: Read deploy outputs
+        id: tf-outputs
+        working-directory: ${{ env.TF_ENV_DIR }}
+        run: |
+          echo "bucket=$(terraform output -raw web_bucket_name)" >> $GITHUB_OUTPUT
+          echo "distribution=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
+
+      - name: Sync assets to S3
+        run: aws s3 sync dist s3://${{ steps.tf-outputs.outputs.bucket }} --delete
+
+      - name: Invalidate CloudFront
+        run: aws cloudfront create-invalidation --distribution-id "${{ steps.tf-outputs.outputs.distribution }}" --paths "/*"
