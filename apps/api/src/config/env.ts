@@ -62,10 +62,33 @@ const parseInteger = (key: string, fallback: number): number => {
   return parsed;
 };
 
+const parseBoolean = (key: string, fallback: boolean): boolean => {
+  const value = process.env[key];
+
+  if (!value) {
+    return fallback;
+  }
+
+  if (value === "true") {
+    return true;
+  }
+
+  if (value === "false") {
+    return false;
+  }
+
+  throw new Error(`${key} must be either "true" or "false"`);
+};
+
 export const env = {
   NODE_ENV: getNodeEnv(),
   PORT: parsePort(),
   DATABASE_URL: getRequiredEnv("DATABASE_URL"),
+  DATABASE_SSL_ENABLED: parseBoolean("DATABASE_SSL_ENABLED", false),
+  DATABASE_SSL_REJECT_UNAUTHORIZED: parseBoolean(
+    "DATABASE_SSL_REJECT_UNAUTHORIZED",
+    false,
+  ),
   CSRF_SECRET: getRequiredEnv("CSRF_SECRET"),
   JWT_ACCESS_SECRET: getRequiredEnv("JWT_ACCESS_SECRET"),
   JWT_REFRESH_SECRET: getRequiredEnv("JWT_REFRESH_SECRET"),
