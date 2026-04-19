@@ -303,7 +303,14 @@ test("editing an AWS account updates the configuration and clears the external i
   );
 
   const nicknameField = await screen.findByLabelText("Account nickname");
+  await waitFor(() => {
+    expect((nicknameField as HTMLInputElement).value).toBe("Prod");
+  });
+
   fireEvent.change(nicknameField, { target: { value: "Prod updated" } });
+  await waitFor(() => {
+    expect((nicknameField as HTMLInputElement).value).toBe("Prod updated");
+  });
   fireEvent.change(screen.getByLabelText("External ID"), {
     target: { value: "" },
   });

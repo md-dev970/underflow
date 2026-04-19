@@ -1,0 +1,14 @@
+node_modules
+dist
+.env
+.env.*
+coverage
+npm-debug.log*
+Dockerfile*
+.dockerignore
+src/**/*.test.ts
+src/test
+infra
+terraform.tfstate
+terraform.tfstate.*
+tfplan

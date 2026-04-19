@@ -6,6 +6,7 @@ import { Button } from "../../components/forms/Button";
 import { Input, PasswordInput } from "../../components/forms/Fields";
 import { useAuth } from "../../features/auth";
 import { useToast } from "../../features/toast";
+import { AuthPageFrame } from "./AuthPageFrame";
 
 export const LoginPage = (): JSX.Element => {
   const navigate = useNavigate();
@@ -38,7 +39,10 @@ export const LoginPage = (): JSX.Element => {
   };
 
   return (
-    <div className="twoColumn sectionSurface" style={{ overflow: "hidden" }}>
+    <AuthPageFrame
+      asideBody="Underflow gives product and infrastructure teams a shared picture of what AWS costs are doing right now."
+      asideTitle="Bring finance clarity to every engineering decision."
+    >
       <form className="pageStack" onSubmit={handleSubmit} style={{ padding: "2rem" }}>
         <div>
           <h1 style={{ marginBottom: "0.5rem" }}>Welcome back</h1>
@@ -78,25 +82,6 @@ export const LoginPage = (): JSX.Element => {
           </Link>
         </div>
       </form>
-      <div
-        style={{
-          padding: "2rem",
-          background:
-            "linear-gradient(180deg, color-mix(in srgb, var(--color-primary) 85%, black), color-mix(in srgb, var(--color-secondary) 58%, black))",
-          color: "white",
-          display: "grid",
-          gap: "1rem",
-          alignContent: "center",
-        }}
-      >
-        <h2 style={{ margin: 0, fontSize: "2rem" }}>
-          Bring finance clarity to every engineering decision.
-        </h2>
-        <p style={{ opacity: 0.85 }}>
-          Underflow gives product and infrastructure teams a shared picture of what AWS
-          costs are doing right now.
-        </p>
-      </div>
-    </div>
+    </AuthPageFrame>
   );
 };

@@ -1,0 +1,26 @@
+aws_region       = "us-west-2"
+name_prefix      = "underflow-prod"
+app_domain_name  = "underflow.example.com"
+route53_zone_id  = "Z1234567890ABC"
+web_bucket_name  = "underflow-example-com-web"
+api_image_uri    = "123456789012.dkr.ecr.us-west-2.amazonaws.com/underflow-prod-app:latest"
+worker_image_uri = ""
+
+db_name            = "underflow"
+db_username        = "underflow"
+db_password        = "replace-me"
+csrf_secret        = "replace-me"
+jwt_access_secret  = "replace-me"
+jwt_refresh_secret = "replace-me"
+alert_email_from   = "alerts@underflow.example.com"
+auth_email_from    = "auth@underflow.example.com"
+aws_ses_region     = "us-west-2"
+
+stripe_secret_key     = ""
+stripe_webhook_secret = ""
+stripe_success_url    = "https://underflow.example.com/app/billing/success"
+stripe_cancel_url     = "https://underflow.example.com/app/billing/cancel"
+
+tags = {
+  owner = "platform"
+}

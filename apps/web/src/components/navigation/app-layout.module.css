@@ -239,12 +239,32 @@
   margin-inline: 0.25rem;
 }
 
-.themeGroup {
-  display: inline-flex;
-  gap: 0.35rem;
-  background: var(--color-surface-muted);
-  padding: 0.3rem;
+.themeToggle {
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
+  background: color-mix(in srgb, var(--color-surface-muted) 90%, white);
+  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color var(--transition-base),
+    color var(--transition-base),
+    transform var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+.themeToggle:hover {
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--color-surface-muted) 75%, var(--color-primary) 12%);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--color-shadow) 24%, transparent);
+}
+
+.themeToggle:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-primary) 55%, white);
+  outline-offset: 2px;
 }
 
 .userBlock {
@@ -332,10 +352,8 @@
     text-align: left;
   }
 
-  .themeGroup {
+  .themeToggle {
     order: 3;
-    width: 100%;
-    justify-content: space-between;
   }
 
   .iconCluster {

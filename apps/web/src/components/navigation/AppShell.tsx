@@ -6,18 +6,21 @@ import {
   CloudCog,
   LayoutDashboard,
   LogOut,
+  Monitor,
+  Moon,
   ReceiptText,
   Settings,
   ShieldHalf,
+  Sun,
   WalletCards,
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../features/auth";
 import { useWorkspace } from "../../features/workspace";
+import type { ThemeMode } from "../../theme/tokens";
 import { useTheme } from "../../theme/useTheme";
 import { Drawer } from "../feedback/Feedback";
-import { Button } from "../forms/Button";
 import styles from "./app-layout.module.css";
 
 export const AppShell = ({ children }: { children: ReactNode }): JSX.Element => {
@@ -28,6 +31,12 @@ export const AppShell = ({ children }: { children: ReactNode }): JSX.Element => 
   const { activeWorkspaceId, setActiveWorkspaceId, workspaces } = useWorkspace();
   const [isNavOpen, setIsNavOpen] = useState(false);
   const userInitials = `${user?.firstName?.[0] ?? "U"}${user?.lastName?.[0] ?? ""}`;
+  const themeOrder: ThemeMode[] = ["light", "dark", "system"];
+  const themeMeta: Record<ThemeMode, { label: string; icon: typeof Sun }> = {
+    light: { label: "Light mode", icon: Sun },
+    dark: { label: "Dark mode", icon: Moon },
+    system: { label: "System theme", icon: Monitor },
+  };
   const navItems = [
     { to: "/app/overview", label: "Overview", icon: LayoutDashboard },
     { to: "/app/workspaces", label: "Workspaces", icon: BriefcaseBusiness },
@@ -55,6 +64,10 @@ export const AppShell = ({ children }: { children: ReactNode }): JSX.Element => 
   useEffect(() => {
     setIsNavOpen(false);
   }, [location.pathname]);
+
+  const currentThemeIndex = Math.max(themeOrder.indexOf(mode), 0);
+  const nextTheme = themeOrder[(currentThemeIndex + 1) % themeOrder.length] ?? "light";
+  const ThemeIcon = themeMeta[mode].icon;
 
   const sidebarContent = (
     <>
@@ -182,22 +195,15 @@ export const AppShell = ({ children }: { children: ReactNode }): JSX.Element => 
                 </button>
               </div>
               <div className={styles.divider} />
-              <div className={styles.themeGroup}>
-                {[
-                  ["light", "Light"],
-                  ["dark", "Dark"],
-                  ["system", "System"],
-                ].map(([value, label]) => (
-                  <Button
-                    key={value}
-                    onClick={() => setMode(value as "light" | "dark" | "system")}
-                    size="sm"
-                    variant={mode === value ? "primary" : "ghost"}
-                  >
-                    {label}
-                  </Button>
-                ))}
-              </div>
+              <button
+                aria-label={`${themeMeta[mode].label}. Switch to ${themeMeta[nextTheme].label.toLowerCase()}`}
+                className={styles.themeToggle}
+                onClick={() => setMode(nextTheme)}
+                title={`${themeMeta[mode].label} active`}
+                type="button"
+              >
+                <ThemeIcon size={18} strokeWidth={2.2} />
+              </button>
               <div className={styles.userBlock}>
                 <div className={styles.userText}>
                   <p className={styles.userName}>

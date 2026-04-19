@@ -1,0 +1,377 @@
+.surface {
+  position: relative;
+  z-index: 1;
+  border-radius: 1.1rem;
+  overflow: hidden;
+}
+
+.costSurface {
+  padding: 1.1rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(245, 248, 253, 0.98) 100%);
+  border: 1px solid color-mix(in srgb, var(--color-border) 50%, white);
+  box-shadow: 0 24px 52px rgba(15, 35, 60, 0.18);
+}
+
+.surfaceHeader,
+.awsTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.2rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-secondary) 10%, white);
+  color: var(--color-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.costHero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.costLabel {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.74rem;
+  color: var(--color-text-subtle);
+}
+
+.costValue {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  color: var(--color-text);
+}
+
+.costDelta {
+  padding: 0.3rem 0.5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-danger) 12%, white);
+  color: var(--color-danger);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.costChart {
+  height: 8rem;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  align-items: end;
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.costBar {
+  border-radius: 0.7rem 0.7rem 0.25rem 0.25rem;
+  background: linear-gradient(180deg, var(--color-accent) 0%, var(--color-primary) 100%);
+  transform-origin: bottom;
+  animation: costBarPulse 5.4s ease-in-out infinite;
+}
+
+.costBar:nth-child(1) { height: 42%; animation-delay: 0s; opacity: 0.58; }
+.costBar:nth-child(2) { height: 68%; animation-delay: 0.25s; opacity: 0.72; }
+.costBar:nth-child(3) { height: 58%; animation-delay: 0.5s; opacity: 0.66; }
+.costBar:nth-child(4) { height: 96%; animation-delay: 0.75s; }
+.costBar:nth-child(5) { height: 78%; animation-delay: 1s; opacity: 0.84; }
+.costBar:nth-child(6) { height: 62%; animation-delay: 1.25s; opacity: 0.68; }
+.costBar:nth-child(7) { height: 88%; animation-delay: 1.5s; opacity: 0.92; }
+
+.costList,
+.alertTimeline,
+.workspaceSurface,
+.awsSteps {
+  display: grid;
+}
+
+.costList {
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.costRow,
+.workspaceRow,
+.awsStep {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.costRow {
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.costService {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.alertSurface {
+  padding: 1rem;
+  background: rgba(7, 20, 41, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+}
+
+.alertPill {
+  display: inline-flex;
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.alertCard {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.9rem;
+  padding: 0.85rem;
+  border-radius: 0.95rem;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.alertIcon {
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.7rem;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.alertTitle {
+  display: block;
+  color: white;
+  font-size: 0.92rem;
+}
+
+.alertBody {
+  margin: 0.2rem 0 0;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.alertTimeline {
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+.alertLine {
+  height: 0.5rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.48), rgba(255, 255, 255, 0.14));
+  animation: shimmerLine 3.8s ease-in-out infinite;
+}
+
+.alertLine:nth-child(2) {
+  width: 84%;
+  animation-delay: 0.4s;
+}
+
+.alertLine:nth-child(3) {
+  width: 68%;
+  animation-delay: 0.8s;
+}
+
+.alertFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.85rem;
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.workspaceSurface {
+  gap: 0.7rem;
+}
+
+.workspaceRow {
+  padding: 0.8rem 0.9rem;
+  border-radius: 0.9rem;
+  background: color-mix(in srgb, var(--color-surfaceMuted) 72%, white);
+  border: 1px solid color-mix(in srgb, var(--color-border) 45%, white);
+  transform: translateY(0);
+  animation: workspaceFloat 4.8s ease-in-out infinite;
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease;
+}
+
+.workspaceRow:nth-child(2) {
+  animation-delay: 0.35s;
+}
+
+.workspaceRow:nth-child(3) {
+  animation-delay: 0.7s;
+}
+
+.workspaceName {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.workspaceState {
+  font-size: 0.75rem;
+  color: var(--color-secondary);
+}
+
+.awsSurface {
+  padding: 1.1rem;
+  background: color-mix(in srgb, var(--color-surfaceMuted) 84%, white);
+  border: 1px solid color-mix(in srgb, var(--color-border) 48%, white);
+  box-shadow: 0 20px 42px rgba(15, 35, 60, 0.12);
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease;
+}
+
+.awsBadge {
+  padding: 0.35rem 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-success) 14%, white);
+  color: var(--color-success);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.awsRole {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 0.9rem;
+  background: white;
+  border: 1px solid color-mix(in srgb, var(--color-border) 48%, white);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.76rem;
+  color: var(--color-text-muted);
+}
+
+.awsSteps {
+  gap: 0.6rem;
+  margin-top: 0.95rem;
+}
+
+.awsStep {
+  justify-content: flex-start;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.workspaceRow:hover {
+  animation-play-state: paused;
+  transform: translateY(-2px) scale(1.015);
+  box-shadow: 0 18px 34px rgba(15, 35, 60, 0.12);
+  border-color: color-mix(in srgb, var(--color-primary) 18%, var(--color-border));
+}
+
+.awsSurface:hover {
+  transform: translateY(-2px) scale(1.015);
+  box-shadow: 0 24px 46px rgba(15, 35, 60, 0.16);
+  border-color: color-mix(in srgb, var(--color-primary) 18%, var(--color-border));
+}
+
+body[data-theme="dark"] .costSurface,
+body[data-theme="dark"] .awsSurface {
+  background: color-mix(in srgb, var(--color-surfaceMuted) 84%, black);
+  border-color: color-mix(in srgb, var(--color-border) 36%, black);
+}
+
+body[data-theme="dark"] .costRow,
+body[data-theme="dark"] .awsRole,
+body[data-theme="dark"] .awsStep,
+body[data-theme="dark"] .workspaceRow {
+  background: color-mix(in srgb, var(--color-surface) 86%, black);
+  border-color: color-mix(in srgb, var(--color-border) 35%, black);
+}
+
+body[data-theme="dark"] .title,
+body[data-theme="dark"] .costValue,
+body[data-theme="dark"] .workspaceName {
+  color: var(--color-text);
+}
+
+@keyframes costBarPulse {
+  0%,
+  100% {
+    transform: scaleY(0.82);
+    filter: saturate(0.92);
+  }
+
+  50% {
+    transform: scaleY(1.02);
+    filter: saturate(1.1);
+  }
+}
+
+@keyframes shimmerLine {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scaleX(0.96);
+    transform-origin: left;
+  }
+
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes workspaceFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}

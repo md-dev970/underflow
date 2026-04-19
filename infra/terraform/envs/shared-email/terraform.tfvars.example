@@ -1,4 +1,4 @@
-aws_region              = "us-west-1"
+aws_region              = "us-west-2"
 domain_name             = "md-dev970.com"
 create_hosted_zone      = true
 enable_custom_mail_from = true

@@ -1,7 +1,7 @@
 locals {
   zone_id          = var.create_hosted_zone ? aws_route53_zone.this[0].zone_id : var.route53_zone_id
   mail_from_domain = "${var.mail_from_subdomain}.${var.domain_name}"
-  dmarc_record     = trimspace(
+  dmarc_record = trimspace(
     join(
       "; ",
       compact([

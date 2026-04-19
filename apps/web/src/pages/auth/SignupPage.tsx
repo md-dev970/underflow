@@ -6,6 +6,7 @@ import { Button } from "../../components/forms/Button";
 import { Input, PasswordInput } from "../../components/forms/Fields";
 import { useAuth } from "../../features/auth";
 import { useToast } from "../../features/toast";
+import { AuthPageFrame } from "./AuthPageFrame";
 
 export const SignupPage = (): JSX.Element => {
   const navigate = useNavigate();
@@ -37,7 +38,10 @@ export const SignupPage = (): JSX.Element => {
   };
 
   return (
-    <div className="twoColumn sectionSurface" style={{ overflow: "hidden" }}>
+    <AuthPageFrame
+      asideBody="Set up a workspace, connect AWS accounts with AssumeRole, and start building a trustworthy view of cloud spend."
+      asideTitle="Built for engineering teams."
+    >
       <form className="pageStack" onSubmit={handleSubmit} style={{ padding: "2rem" }}>
         <div>
           <h1 style={{ marginBottom: "0.5rem" }}>Create your account</h1>
@@ -87,23 +91,6 @@ export const SignupPage = (): JSX.Element => {
           Already have an account? Log in
         </Link>
       </form>
-      <div
-        style={{
-          padding: "2rem",
-          background:
-            "linear-gradient(180deg, color-mix(in srgb, var(--color-primary) 85%, black), color-mix(in srgb, var(--color-secondary) 58%, black))",
-          color: "white",
-          display: "grid",
-          gap: "1rem",
-          alignContent: "center",
-        }}
-      >
-        <h2 style={{ margin: 0, fontSize: "2rem" }}>Built for engineering teams.</h2>
-        <p style={{ opacity: 0.85 }}>
-          Set up a workspace, connect AWS accounts with AssumeRole, and start building a
-          trustworthy view of cloud spend.
-        </p>
-      </div>
-    </div>
+    </AuthPageFrame>
   );
 };
