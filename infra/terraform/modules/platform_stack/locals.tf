@@ -40,6 +40,8 @@ locals {
     { name = "NODE_ENV", value = "production" },
     { name = "PORT", value = "3080" },
     { name = "DATABASE_URL", value = local.database_url },
+    { name = "DATABASE_SSL_ENABLED", value = "true" },
+    { name = "DATABASE_SSL_REJECT_UNAUTHORIZED", value = "false" },
     { name = "CSRF_SECRET", value = var.csrf_secret },
     { name = "JWT_ACCESS_SECRET", value = var.jwt_access_secret },
     { name = "JWT_REFRESH_SECRET", value = var.jwt_refresh_secret },
