@@ -15,6 +15,7 @@ Underflow is intentionally broader than a CRUD demo. It brings together:
 - Background jobs for sync and alert evaluation
 - Billing-oriented flows and notification infrastructure
 - Terraform-based infrastructure setup for SES and DNS delegation
+- Terraform and GitHub Actions scaffolding for a first ECS/CloudFront production deployment
 
 ## What Underflow Does Today
 
@@ -165,13 +166,17 @@ npm test
 
 - SES/DNS infrastructure now lives under [`infra/terraform`](./infra/terraform)
 - The current recommended pattern is a delegated subdomain such as `underflow.example.com`
-- Terraform can manage the Route 53 hosted zone, SES identity, DKIM, MAIL FROM, and DMARC records
+- Terraform can manage:
+  - Route 53 hosted zone, SES identity, DKIM, MAIL FROM, and DMARC records
+  - bootstrap CI/CD infrastructure such as Terraform remote state and GitHub OIDC
+  - production ECS, RDS, S3, and CloudFront deployment topology
 - Parent-domain delegation and SES production-access approval still require manual AWS/DNS steps
 
 See:
 
 - [docs/local-development.md](./docs/local-development.md)
 - [docs/production-operations.md](./docs/production-operations.md)
+- [docs/production-deployment.md](./docs/production-deployment.md)
 - [docs/customer-aws-onboarding.md](./docs/customer-aws-onboarding.md)
 - [docs/status-and-limitations.md](./docs/status-and-limitations.md)
 - [`infra/terraform/README.md`](./infra/terraform/README.md)
@@ -180,7 +185,6 @@ See:
 
 - Validate real AWS cost syncs and alert evaluation against live accounts
 - Finalize SES-backed email delivery end to end
-- Add production deployment wiring and infrastructure rollout guidance
 - Continue improving reliability, observability, and operational polish
 
 ## License
