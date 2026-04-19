@@ -1,0 +1,13 @@
+aws_region                   = "us-west-2"
+terraform_state_bucket_name  = "underflow-terraform-state-prod"
+terraform_lock_table_name    = "underflow-terraform-locks"
+github_repository            = "your-org/underflow"
+github_actions_role_name     = "underflow-github-actions-deploy"
+github_oidc_subjects = [
+  "repo:your-org/underflow:ref:refs/heads/main",
+  "repo:your-org/underflow:environment:production",
+]
+
+tags = {
+  owner = "platform"
+}

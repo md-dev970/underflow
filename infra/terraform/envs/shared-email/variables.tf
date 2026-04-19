@@ -1,6 +1,6 @@
 variable "aws_region" {
   type    = string
-  default = "us-east-1"
+  default = "us-west-2"
 }
 
 variable "domain_name" {
@@ -48,7 +48,7 @@ variable "dmarc_rua" {
 }
 
 variable "tags" {
-  type    = map(string)
+  type = map(string)
   default = {
     project = "underflow"
     managed = "terraform"
