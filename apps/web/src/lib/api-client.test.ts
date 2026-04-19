@@ -5,6 +5,7 @@ import {
   AUTH_SESSION_EXPIRED_EVENT,
   clearCsrfToken,
 } from "./api-client";
+import { appConfig } from "./config";
 
 const jsonResponse = (body: unknown, init?: ResponseInit): Response =>
   new Response(JSON.stringify(body), {
@@ -18,6 +19,8 @@ const jsonResponse = (body: unknown, init?: ResponseInit): Response =>
 describe("apiRequest auth refresh", () => {
   const fetchMock = vi.fn<typeof fetch>();
   const sessionExpiredListener = vi.fn();
+  const refreshUrl = `${appConfig.apiUrl}/auth/refresh-token`;
+  const workspacesUrl = `${appConfig.apiUrl}/workspaces`;
 
   beforeEach(() => {
     clearCsrfToken();
@@ -46,7 +49,7 @@ describe("apiRequest auth refresh", () => {
     expect(result).toEqual({ workspaces: [] });
     expect(fetchMock).toHaveBeenNthCalledWith(
       3,
-      "http://localhost:3080/api/v1/auth/refresh-token",
+      refreshUrl,
       expect.objectContaining({
         method: "POST",
         credentials: "include",
@@ -54,7 +57,7 @@ describe("apiRequest auth refresh", () => {
     );
     expect(fetchMock).toHaveBeenNthCalledWith(
       4,
-      "http://localhost:3080/api/v1/workspaces",
+      workspacesUrl,
       expect.objectContaining({
         method: "GET",
         credentials: "include",
@@ -96,7 +99,7 @@ describe("apiRequest auth refresh", () => {
     expect(alerts).toEqual({ alerts: [] });
 
     const refreshCalls = fetchMock.mock.calls.filter(
-      ([url]) => url === "http://localhost:3080/api/v1/auth/refresh-token",
+      ([url]) => url === refreshUrl,
     );
     expect(refreshCalls).toHaveLength(1);
   });
