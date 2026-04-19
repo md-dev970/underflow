@@ -150,15 +150,14 @@ jobs:
           echo "worker_service=$(terraform output -raw worker_service_name)" >> $GITHUB_OUTPUT
           echo "migration_task=$(terraform output -raw migration_task_definition_arn)" >> $GITHUB_OUTPUT
           echo "security_group=$(terraform output -raw ecs_security_group_id)" >> $GITHUB_OUTPUT
-          echo "subnets_json<<EOF" >> $GITHUB_OUTPUT
-          terraform output -json private_subnet_ids >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Run database migrations
         id: migrate
+        working-directory: ${{ env.TF_ENV_DIR }}
         run: |
+          SUBNETS_JSON=$(terraform output -json private_subnet_ids)
           NETWORK_CONFIGURATION=$(jq -cn \
-            --argjson subnets '${{ steps.tf-outputs.outputs.subnets_json }}' \
+            --argjson subnets "$SUBNETS_JSON" \
             --arg securityGroup '${{ steps.tf-outputs.outputs.security_group }}' \
             '{awsvpcConfiguration:{subnets:$subnets,securityGroups:[$securityGroup],assignPublicIp:"DISABLED"}}')
 
