@@ -72,3 +72,8 @@ output "app_url" {
   description = "Public application URL."
   value       = "https://${var.app_domain_name}"
 }
+
+output "api_url" {
+  description = "Public API base URL."
+  value       = "https://${local.api_domain}"
+}

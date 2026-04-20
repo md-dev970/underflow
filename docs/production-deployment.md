@@ -3,7 +3,7 @@
 This document is the first-deployment guide for running Underflow on AWS with:
 
 - `https://underflow.[yourdomain].com` for the web app
-- `https://underflow.[yourdomain].com/api/*` for the API through the same CloudFront distribution
+- `https://api.underflow.[yourdomain].com/api/*` for the API
 - ECS Fargate for the API and worker
 - RDS PostgreSQL
 - S3 + CloudFront for the frontend
@@ -12,17 +12,21 @@ This document is the first-deployment guide for running Underflow on AWS with:
 ## Topology
 
 - CloudFront
-  - default behavior serves the Vite build from S3
-  - `/api/*` forwards to the API ALB
+  - serves the Vite build from S3 for `underflow.[yourdomain].com`
 - ECS Fargate
   - one API service
   - one worker service
   - one migration task definition used during deploy
+- Application Load Balancer
+  - terminates TLS for `api.underflow.[yourdomain].com`
+  - forwards `/api/v1/*` traffic to the API ECS service
 - RDS PostgreSQL
   - private subnets only
 - Route 53 + ACM
-  - certificate in `us-west-2`
+  - CloudFront certificate in `us-east-1`
+  - API ALB certificate in the primary region
   - alias record for `underflow.[yourdomain].com`
+  - alias record for `api.underflow.[yourdomain].com`
 
 ## One-Time Bootstrap Order
 
@@ -141,7 +145,8 @@ Add these as `production` environment secrets in GitHub:
 
 ### `deploy-web.yml`
 
-- builds the frontend with `VITE_API_URL=/api/v1`
+- reads `api_url` from Terraform output
+- builds the frontend with `VITE_API_URL=https://api.underflow.[yourdomain].com/api/v1`
 - uploads static assets to S3
 - invalidates CloudFront
 
@@ -160,22 +165,22 @@ The ECS task runtime role is responsible for:
 - `sts:AssumeRole` into customer `UnderflowCostExplorerRead` roles
 - SES send permissions
 
+For the split-domain setup, prefer leaving `AUTH_COOKIE_DOMAIN` empty so auth cookies remain host-only on `api.underflow.[yourdomain].com`.
+
 ### Web
 
 Production web builds should use:
 
 ```text
-VITE_API_URL=/api/v1
+VITE_API_URL=https://api.underflow.[yourdomain].com/api/v1
 ```
-
-That keeps browser requests same-origin behind CloudFront.
 
 ## First-Deploy Smoke Tests
 
 Run these checks immediately after the first deployment:
 
 1. `https://underflow.[yourdomain].com` loads successfully.
-2. `https://underflow.[yourdomain].com/api/v1/health` returns `200`.
+2. `https://api.underflow.[yourdomain].com/api/v1/health` returns `200`.
 3. Signup works.
 4. Login works.
 5. Forgot-password email is delivered.

@@ -29,7 +29,21 @@ export const AUTH_SESSION_EXPIRED_EVENT = "underflow:auth-session-expired";
 
 const parseResponse = async <T>(response: Response): Promise<T> => {
   const text = await response.text();
-  const data = text ? (JSON.parse(text) as unknown) : {};
+  let data: unknown = {};
+
+  if (text) {
+    try {
+      data = JSON.parse(text) as unknown;
+    } catch {
+      throw new ApiError(
+        response.status,
+        response.ok ? "Received a non-JSON response" : "Unexpected non-JSON error response",
+        {
+          responseTextPreview: text.slice(0, 200),
+        },
+      );
+    }
+  }
 
   if (!response.ok) {
     const payload =

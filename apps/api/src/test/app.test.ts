@@ -694,6 +694,35 @@ test("POST /api/v1/users/me/sessions/logout-others revokes all other sessions", 
   }
 });
 
+test("POST /api/v1/users/me/request-account-deletion records a deletion request", async () => {
+  const { app, userService, signAccessToken } = await loadModules();
+  const originalRequestAccountDeletion = userService.requestAccountDeletion;
+
+  let capturedUserId: string | null = null;
+  userService.requestAccountDeletion = async (userId) => {
+    capturedUserId = userId;
+  };
+
+  try {
+    const user = buildUser();
+    const accessToken = signAccessToken(buildAuthenticatedClaims(user));
+
+    const response = await request(app)
+      .post("/api/v1/users/me/request-account-deletion")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({});
+
+    assert.equal(response.status, 200);
+    assert.equal(capturedUserId, "user-123");
+    assert.equal(
+      response.body.message,
+      "Account deletion request submitted successfully",
+    );
+  } finally {
+    userService.requestAccountDeletion = originalRequestAccountDeletion;
+  }
+});
+
 test("GET /api/v1/notifications returns the notifications feed", async () => {
   const { app, notificationService, signAccessToken } = await loadModules();
   const originalGetFeedForUser = notificationService.getFeedForUser;

@@ -65,6 +65,7 @@ export const ProfileSettingsPage = (): JSX.Element => {
   const [isSavingPassword, setIsSavingPassword] = useState(false);
   const [isSavingPreferences, setIsSavingPreferences] = useState(false);
   const [isLoggingOutOthers, setIsLoggingOutOthers] = useState(false);
+  const [isRequestingDeletion, setIsRequestingDeletion] = useState(false);
 
   const preferencesQuery = useAsyncData(
     async () => {
@@ -197,6 +198,37 @@ export const ProfileSettingsPage = (): JSX.Element => {
       showToast({ title: "Session revoked", tone: "success" });
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Unable to revoke session");
+    }
+  };
+
+  const handleRequestAccountDeletion = async () => {
+    setError(null);
+
+    const confirmed = window.confirm(
+      "Send an account deletion request? This does not delete your account immediately.",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setIsRequestingDeletion(true);
+
+    try {
+      await usersApi.requestAccountDeletion();
+      showToast({
+        title: "Deletion request submitted",
+        description: "Our team can now review your account deletion request.",
+        tone: "success",
+      });
+    } catch (submitError) {
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : "Unable to submit account deletion request",
+      );
+    } finally {
+      setIsRequestingDeletion(false);
     }
   };
 
@@ -472,8 +504,12 @@ export const ProfileSettingsPage = (): JSX.Element => {
             resource data.
           </p>
         </div>
-        <Button type="button" variant="ghost">
-          Request Account Deletion
+        <Button
+          onClick={() => void handleRequestAccountDeletion()}
+          type="button"
+          variant="ghost"
+        >
+          {isRequestingDeletion ? "Submitting..." : "Request Account Deletion"}
         </Button>
       </section>
     </div>

@@ -123,4 +123,16 @@ export const userController = {
 
     res.status(200).json({ message: "Other sessions logged out successfully" });
   },
+
+  async requestMyAccountDeletion(req: Request, res: Response): Promise<void> {
+    if (!req.user) {
+      throw new AppError("Unauthorized", 401);
+    }
+
+    await userService.requestAccountDeletion(req.user.id);
+
+    res.status(200).json({
+      message: "Account deletion request submitted successfully",
+    });
+  },
 };

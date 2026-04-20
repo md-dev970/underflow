@@ -6,6 +6,7 @@ data "aws_availability_zones" "available" {
 
 locals {
   worker_image = var.worker_image_uri != "" ? var.worker_image_uri : var.api_image_uri
+  api_domain   = "api.${var.app_domain_name}"
 
   tags = merge(
     {

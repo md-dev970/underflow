@@ -13,7 +13,7 @@ export const {
   getSecret: () => env.CSRF_SECRET,
   getSessionIdentifier: (req: Request) => {
     const userAgent = req.headers["user-agent"] ?? "unknown-user-agent";
-    return `${req.ip}:${userAgent}`;
+    return String(userAgent);
   },
   cookieName: csrfCookieName,
   cookieOptions: {
