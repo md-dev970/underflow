@@ -11,6 +11,7 @@ import { AwsAccountsPage } from "./AwsAccountsPage";
 import { ConnectAwsAccountPage } from "./ConnectAwsAccountPage";
 import { AlertsPage } from "./AlertsPage";
 import { CreateAlertPage } from "./CreateAlertPage";
+import { ProfileSettingsPage } from "./ProfileSettingsPage";
 import { WorkspaceSettingsPage } from "./WorkspaceSettingsPage";
 
 const authApiMock = vi.hoisted(() => ({
@@ -52,6 +53,17 @@ const alertsApiMock = vi.hoisted(() => ({
   remove: vi.fn(),
 }));
 
+const usersApiMock = vi.hoisted(() => ({
+  updateProfile: vi.fn(),
+  updatePassword: vi.fn(),
+  getPreferences: vi.fn(),
+  updatePreferences: vi.fn(),
+  getSessions: vi.fn(),
+  revokeSession: vi.fn(),
+  logoutOtherSessions: vi.fn(),
+  requestAccountDeletion: vi.fn(),
+}));
+
 vi.mock("../../lib/api/auth", () => ({
   authApi: authApiMock,
 }));
@@ -66,6 +78,10 @@ vi.mock("../../lib/api/aws-accounts", () => ({
 
 vi.mock("../../lib/api/alerts", () => ({
   alertsApi: alertsApiMock,
+}));
+
+vi.mock("../../lib/api/users", () => ({
+  usersApi: usersApiMock,
 }));
 
 const signedInUser = {
@@ -163,6 +179,34 @@ beforeEach(() => {
   awsApiMock.update.mockResolvedValue({ awsAccount: { ...awsAccount, name: "Prod updated" } });
   alertsApiMock.list.mockResolvedValue({ alerts: [] });
   alertsApiMock.remove.mockResolvedValue(undefined);
+  usersApiMock.getPreferences.mockResolvedValue({
+    preferences: {
+      costAlerts: true,
+      driftReports: true,
+      maintenance: false,
+      featureReleases: true,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      updatedAt: "2026-01-01T00:00:00.000Z",
+    },
+  });
+  usersApiMock.getSessions.mockResolvedValue({
+    sessions: [
+      {
+        id: "session-current",
+        deviceLabel: "Mac",
+        userAgent: "Mozilla/5.0 (Macintosh)",
+        ipAddress: "127.0.0.1",
+        createdAt: "2026-01-01T00:00:00.000Z",
+        lastUsedAt: "2026-01-01T00:00:00.000Z",
+        revokedAt: null,
+        isCurrent: true,
+      },
+    ],
+  });
+  usersApiMock.requestAccountDeletion.mockResolvedValue({
+    message: "Account deletion request submitted successfully",
+  });
+  vi.spyOn(window, "confirm").mockImplementation(() => true);
 });
 
 afterEach(() => {
@@ -475,5 +519,19 @@ test("alert creation submits a scoped rule", async () => {
       period: "monthly",
       awsAccountId: "aws-1",
     });
+  });
+});
+
+test("profile settings submits an account deletion request", async () => {
+  renderPage(
+    "/app/settings/profile",
+    "/app/settings/profile",
+    <ProfileSettingsPage />,
+  );
+
+  fireEvent.click(await screen.findByRole("button", { name: "Request Account Deletion" }));
+
+  await waitFor(() => {
+    expect(usersApiMock.requestAccountDeletion).toHaveBeenCalledTimes(1);
   });
 });

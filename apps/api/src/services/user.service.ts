@@ -9,6 +9,7 @@ import type {
   UserSession,
   User,
 } from "../types/auth.types.js";
+import { logger } from "../lib/logger.js";
 import { AppError } from "../utils/app-error.js";
 import { hashPassword, verifyPassword } from "../utils/password.js";
 
@@ -171,5 +172,18 @@ export const userService = {
     }
 
     await refreshTokenRepository.revokeByUserIdExcept(userId, currentSessionId);
+  },
+
+  async requestAccountDeletion(userId: string): Promise<void> {
+    const user = await userRepository.findById(userId);
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    logger.warn("Account deletion requested", {
+      userId: user.id,
+      email: user.email,
+    });
   },
 };

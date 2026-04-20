@@ -72,3 +72,8 @@ output "app_url" {
   description = "Public application URL."
   value       = module.platform.app_url
 }
+
+output "api_url" {
+  description = "Public API base URL."
+  value       = module.platform.api_url
+}

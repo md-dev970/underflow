@@ -53,4 +53,10 @@ export const usersApi = {
       body: {},
       requireAuth: true,
     }),
+  requestAccountDeletion: () =>
+    apiRequest<{ message: string }>("/users/me/request-account-deletion", {
+      method: "POST",
+      body: {},
+      requireAuth: true,
+    }),
 };

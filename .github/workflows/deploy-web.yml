@@ -22,8 +22,6 @@ jobs:
     defaults:
       run:
         working-directory: apps/web
-    env:
-      VITE_API_URL: /api/v1
     steps:
       - uses: actions/checkout@v4
 
@@ -42,11 +40,6 @@ jobs:
           role-to-assume: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Build frontend
-        run: |
-          npm ci
-          npm run build
-
       - name: Terraform init
         working-directory: ${{ env.TF_ENV_DIR }}
         env:
@@ -60,6 +53,14 @@ jobs:
         run: |
           echo "bucket=$(terraform output -raw web_bucket_name)" >> $GITHUB_OUTPUT
           echo "distribution=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
+          echo "api_url=$(terraform output -raw api_url)" >> $GITHUB_OUTPUT
+
+      - name: Build frontend
+        env:
+          VITE_API_URL: ${{ steps.tf-outputs.outputs.api_url }}/api/v1
+        run: |
+          npm ci
+          npm run build
 
       - name: Sync assets to S3
         run: aws s3 sync dist s3://${{ steps.tf-outputs.outputs.bucket }} --delete

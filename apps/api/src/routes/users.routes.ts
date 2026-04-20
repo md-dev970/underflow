@@ -48,3 +48,9 @@ usersRouter.post(
   authMiddleware,
   asyncHandler(userController.logoutOtherSessions),
 );
+usersRouter.post(
+  "/me/request-account-deletion",
+  mutationRateLimit,
+  authMiddleware,
+  asyncHandler(userController.requestMyAccountDeletion),
+);

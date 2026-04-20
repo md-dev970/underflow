@@ -13,6 +13,8 @@ export const app = express();
 const stripeWebhookPath = "/api/v1/subscriptions/webhook/stripe";
 const jsonParser = express.json();
 
+app.set("trust proxy", true);
+
 app.use(
   cors({
     origin: env.CLIENT_URL,
