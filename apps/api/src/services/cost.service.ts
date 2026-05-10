@@ -7,6 +7,7 @@ import type {
   CostQueryInput,
   CostSummary,
   CostSyncResult,
+  ScheduledCostSyncSummary,
   ServiceCostBreakdownItem,
   SyncHistoryItem,
   SyncHistoryQueryInput,
@@ -137,8 +138,14 @@ export const costService = {
     return costRepository.getSyncHistory(workspaceId, input);
   },
 
-  async syncAllVerifiedAccounts(): Promise<void> {
+  async syncAllVerifiedAccounts(): Promise<ScheduledCostSyncSummary> {
     const accounts = await awsAccountRepository.findActiveForSync();
+    const summary: ScheduledCostSyncSummary = {
+      scannedAccounts: accounts.length,
+      syncedAccounts: 0,
+      skippedAccounts: 0,
+      failedAccounts: 0,
+    };
 
     for (const account of accounts) {
       const lock = await jobLockRepository.withAdvisoryLock(
@@ -178,12 +185,15 @@ export const costService = {
           awsAccountId: account.id,
           workspaceId: account.workspaceId,
         });
+        summary.skippedAccounts += 1;
         continue;
       }
 
       try {
         await lock.result;
+        summary.syncedAccounts += 1;
       } catch (error) {
+        summary.failedAccounts += 1;
         logger.error("Background AWS sync failed", {
           awsAccountId: account.id,
           workspaceId: account.workspaceId,
@@ -191,5 +201,7 @@ export const costService = {
         });
       }
     }
+
+    return summary;
   },
 };

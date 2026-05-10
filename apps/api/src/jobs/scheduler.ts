@@ -3,7 +3,6 @@ import cron from "node-cron";
 import { logger } from "../lib/logger.js";
 import { jobLockRepository } from "../repositories/job-lock.repository.js";
 import { alertService } from "../services/alert.service.js";
-import { costService } from "../services/cost.service.js";
 
 const runScheduledJob = async (
   jobName: string,
@@ -24,17 +23,6 @@ const runScheduledJob = async (
 };
 
 export const startJobScheduler = (): void => {
-  cron.schedule("0 2 * * *", () => {
-    void runScheduledJob("sync_all_verified_accounts", () =>
-      costService.syncAllVerifiedAccounts(),
-    ).catch((error: unknown) => {
-      logger.error("Scheduled job failed", {
-        jobName: "sync_all_verified_accounts",
-        errorMessage: error instanceof Error ? error.message : "Unknown job error",
-      });
-    });
-  });
-
   cron.schedule("0 * * * *", () => {
     void runScheduledJob("evaluate_active_alerts", () =>
       alertService.evaluateActiveAlerts(),

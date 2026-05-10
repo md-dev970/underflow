@@ -1,6 +1,6 @@
 # Architecture Overview
 
-Underflow is split into three main areas: an API, a frontend application, and infrastructure code that supports external integrations such as SES and Route 53.
+Underflow is split into three main areas: an API, a frontend application, and infrastructure code that supports AWS integrations, email delivery, and production deployment.
 
 ## System Shape
 
@@ -16,15 +16,15 @@ The API is responsible for:
 - cost reporting endpoints
 - alert creation and alert evaluation primitives
 - notifications, billing, and supporting integrations
-- background worker entrypoints and DB-backed job safety
+- background execution entrypoints and DB-backed job safety
 
-The backend has evolved from raw schema bootstrapping to a migration-based setup and now includes:
+The backend includes:
 
 - structured logging
 - rate limiting
 - standardized error envelopes
 - JWT/session-version validation
-- DB-backed job locking for recurring sync/alert work
+- DB-backed advisory locking for recurring sync and alert work
 
 ### `apps/web`
 
@@ -37,23 +37,19 @@ The frontend is a React application responsible for:
 - alerts, notifications, and settings pages
 - responsive authenticated app shell
 
-It now includes:
-
-- route-based code splitting
-- route-level loading and retryable error handling
-- frontend tests for major authenticated flows
+It also includes route-based code splitting, route-level loading and retryable error handling, and frontend test coverage for the major authenticated flows.
 
 ### `infra/terraform`
 
-Infrastructure code currently focuses on shared AWS resources, especially the email/domain setup:
+Infrastructure code provisions the production AWS footprint and supporting integrations:
 
-- Route 53 hosted zones
-- SES identities
-- DKIM records
-- custom `MAIL FROM`
-- DMARC support
-
-The current pattern is designed around a delegated subdomain such as `underflow.example.com`, keeping the project isolated from the rest of a parent domain.
+- Route 53 hosted zones and DNS records
+- SES identities and mail records
+- ECS services for API and worker runtimes
+- Lambda for scheduled cost sync
+- RDS PostgreSQL
+- S3, CloudFront, and ALB resources
+- CI/CD bootstrap resources such as Terraform state and GitHub OIDC
 
 ## Main Runtime Flows
 
@@ -71,35 +67,36 @@ The current pattern is designed around a delegated subdomain such as `underflow.
 
 ### Cost monitoring
 
-- Cost data is synced through API/worker logic
+- Cost data is synced through the backend using assumed AWS credentials
+- A scheduled Lambda can run cost sync across all verified AWS accounts on a fixed interval
 - Reporting endpoints expose summary, by-service, timeseries, and sync history views
 - The frontend presents this through workspace-scoped dashboards and detail pages
 
 ### Alerts and notifications
 
 - Alert rules are attached to a workspace, optionally scoped to a specific AWS account
-- Background alert evaluation logic creates events and notification deliveries
-- Notifications are surfaced in the frontend feed
+- The ECS worker evaluates active alerts on a schedule
+- Notification delivery and status are persisted and surfaced in the frontend feed
 
 ## Email / SES Integration Boundary
 
-Email is intentionally treated as a real-integration boundary rather than purely mocked infrastructure.
+Email is treated as a real integration boundary rather than a mocked afterthought.
 
 - Terraform provisions SES identity-related DNS
 - Route 53 hosts the delegated project subdomain
-- The parent domain remains at its existing registrar/DNS provider unless you choose otherwise
-- Manual steps still exist for:
-  - subdomain delegation in the parent DNS zone
-  - SES production-access approval
+- The parent domain can remain at its existing registrar or DNS provider
+- SES still requires normal production-access and domain-verification steps in AWS
 
 ## Current Architectural Tradeoffs
 
-- The repository is intentionally optimized for learning and demonstration breadth, not minimalism
-- Infrastructure is split between app-local starter assets and new root-level shared Terraform
-- Some providers are fully integrated in local/test mode but still require real-account validation before they can be called “finished”
+- The repository is intentionally broad and demonstrates system thinking over minimalism
+- Background processing is intentionally split by responsibility:
+  - Lambda handles scheduled cost sync
+  - ECS worker handles alert evaluation
+- Some cloud integrations are fully wired but still benefit from live-account validation before they should be considered fully hardened
 
 ## What A Reviewer Should Notice
 
 - The project goes beyond UI work and touches auth, DB migrations, cloud integrations, background jobs, testing, and infrastructure
-- Production-style concerns are visible even where the repository is still under active development
-- The implementation is broad enough to demonstrate system thinking, not just isolated feature work
+- Production concerns are visible in deployment, session handling, logging, and cloud access patterns
+- The implementation is broad enough to demonstrate end-to-end engineering ownership, not just isolated feature work

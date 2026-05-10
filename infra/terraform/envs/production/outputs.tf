@@ -28,6 +28,11 @@ output "worker_service_name" {
   value       = module.platform.worker_service_name
 }
 
+output "scheduled_cost_sync_lambda_name" {
+  description = "Scheduled cost sync Lambda function name."
+  value       = module.platform.scheduled_cost_sync_lambda_name
+}
+
 output "api_task_definition_arn" {
   description = "API task definition ARN."
   value       = module.platform.api_task_definition_arn

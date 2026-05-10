@@ -5,7 +5,7 @@ import { startJobScheduler } from "./scheduler.js";
 const startWorker = async (): Promise<void> => {
   await connectToDatabase();
   startJobScheduler();
-  logger.info("Background jobs started");
+  logger.info("Background alert jobs started");
 };
 
 startWorker().catch((error: unknown) => {
