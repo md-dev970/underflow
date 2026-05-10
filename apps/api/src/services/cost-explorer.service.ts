@@ -5,7 +5,7 @@ import {
   GetCostAndUsageCommand,
 } from "@aws-sdk/client-cost-explorer";
 
-import { env } from "../config/env.js";
+import { runtimeEnv } from "../config/runtime-env.js";
 import type { AwsAccount } from "../types/aws-account.types.js";
 import { toCostExplorerError } from "../utils/aws-account.js";
 import { awsCredentialsService, type AssumedRoleSession } from "./aws-credentials.service.js";
@@ -21,7 +21,7 @@ export const costExplorerService = {
   buildCostExplorerClient(
     credentials: AssumedRoleSession["credentials"],
   ): Pick<CostExplorerClient, "send"> {
-    return new CostExplorerClient({ region: env.AWS_REGION, credentials });
+    return new CostExplorerClient({ region: runtimeEnv.AWS_REGION, credentials });
   },
 
   async fetchCostData(

@@ -1,6 +1,6 @@
 import { AssumeRoleCommand, STSClient } from "@aws-sdk/client-sts";
 
-import { env } from "../config/env.js";
+import { runtimeEnv } from "../config/runtime-env.js";
 import type { AwsAccount } from "../types/aws-account.types.js";
 import { AppError } from "../utils/app-error.js";
 import { toAssumeRoleError } from "../utils/aws-account.js";
@@ -20,7 +20,7 @@ type AwsAction = "verify" | "sync";
 
 export const awsCredentialsService = {
   buildBaseStsClient(): Pick<STSClient, "send"> {
-    return new STSClient({ region: env.AWS_REGION });
+    return new STSClient({ region: runtimeEnv.AWS_REGION });
   },
 
   buildSessionName(action: AwsAction): string {

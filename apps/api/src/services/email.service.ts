@@ -1,6 +1,6 @@
 import { SendEmailCommand, SESClient } from "@aws-sdk/client-ses";
 
-import { env } from "../config/env.js";
+import { runtimeEnv } from "../config/runtime-env.js";
 
 let sesClient: SESClient | null = null;
 
@@ -10,16 +10,16 @@ const getSesClient = (): SESClient => {
   }
 
   sesClient =
-    env.AWS_SES_ACCESS_KEY_ID && env.AWS_SES_SECRET_ACCESS_KEY
+    runtimeEnv.AWS_SES_ACCESS_KEY_ID && runtimeEnv.AWS_SES_SECRET_ACCESS_KEY
       ? new SESClient({
-          region: env.AWS_SES_REGION,
+          region: runtimeEnv.AWS_SES_REGION,
           credentials: {
-            accessKeyId: env.AWS_SES_ACCESS_KEY_ID,
-            secretAccessKey: env.AWS_SES_SECRET_ACCESS_KEY,
+            accessKeyId: runtimeEnv.AWS_SES_ACCESS_KEY_ID,
+            secretAccessKey: runtimeEnv.AWS_SES_SECRET_ACCESS_KEY,
           },
         })
       : new SESClient({
-          region: env.AWS_SES_REGION,
+          region: runtimeEnv.AWS_SES_REGION,
         });
 
   return sesClient;
