@@ -55,7 +55,7 @@ test("scheduled cost sync Lambda handler returns a 200 with the sync summary bod
   ensureScheduledRuntimeEnv();
 
   const [{ handler }, { scheduledCostSyncDependencies }] = await Promise.all([
-    import("../jobs/scheduled-cost-sync.lambda.js"),
+    import("../jobs/scheduled-cost-sync-handler.js"),
     import("../jobs/scheduled-cost-sync.js"),
   ]);
 
@@ -89,7 +89,7 @@ test("scheduled cost sync Lambda handler surfaces failures", async () => {
   ensureScheduledRuntimeEnv();
 
   const [{ handler }, { scheduledCostSyncDependencies }] = await Promise.all([
-    import("../jobs/scheduled-cost-sync.lambda.js"),
+    import("../jobs/scheduled-cost-sync-handler.js"),
     import("../jobs/scheduled-cost-sync.js"),
   ]);
 
