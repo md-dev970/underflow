@@ -5,6 +5,7 @@ route53_zone_id  = "Z1234567890ABC"
 web_bucket_name  = "underflow-example-com-web"
 api_image_uri    = "123456789012.dkr.ecr.us-west-2.amazonaws.com/underflow-prod-app:latest"
 worker_image_uri = ""
+scheduled_sync_interval_hours = 6
 
 db_name            = "underflow"
 db_username        = "underflow"

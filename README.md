@@ -54,7 +54,7 @@ flowchart LR
     API --> Customer["Customer AWS Accounts<br/>AssumeRole"]
 ```
 
-Underflow separates the customer-facing frontend, the API, and the background worker so cost syncs, alert evaluation, and notification delivery can run independently from the UI. The backend assumes customer roles only when needed, while synced reporting data stays in PostgreSQL for fast dashboard queries.
+Underflow separates the customer-facing frontend, the API, the scheduled sync runtime, and the alert worker so cost collection, alert evaluation, and notification delivery can run independently from the UI. The backend assumes customer roles only when needed, while synced reporting data stays in PostgreSQL for fast dashboard queries.
 
 ## Why This Project Is Credible
 
@@ -99,7 +99,8 @@ Underflow is deployed as:
 
 - a React frontend served from S3 through CloudFront
 - an Express API running on ECS Fargate
-- a background worker service for sync and alert execution
+- a scheduled Lambda for verified-account cost sync
+- a background worker service for alert execution
 - a PostgreSQL database on Amazon RDS
 - AWS-managed DNS, certificates, and email infrastructure
 

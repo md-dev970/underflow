@@ -39,6 +39,8 @@ module "platform" {
   api_memory                       = var.api_memory
   worker_cpu                       = var.worker_cpu
   worker_memory                    = var.worker_memory
+  scheduled_sync_interval_hours    = var.scheduled_sync_interval_hours
+  scheduled_sync_lambda_source_dir = abspath("${path.root}/../../../../apps/api/build/lambda")
   db_instance_class                = var.db_instance_class
   db_name                          = var.db_name
   db_username                      = var.db_username

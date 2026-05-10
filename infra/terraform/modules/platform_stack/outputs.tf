@@ -28,6 +28,11 @@ output "worker_service_name" {
   value       = aws_ecs_service.worker.name
 }
 
+output "scheduled_cost_sync_lambda_name" {
+  description = "Scheduled cost sync Lambda function name."
+  value       = aws_lambda_function.scheduled_cost_sync.function_name
+}
+
 output "api_task_definition_arn" {
   description = "API task definition ARN."
   value       = aws_ecs_task_definition.api.arn

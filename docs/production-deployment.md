@@ -17,6 +17,8 @@ This document is the first-deployment guide for running Underflow on AWS with:
   - one API service
   - one worker service
   - one migration task definition used during deploy
+- EventBridge + Lambda
+  - one scheduled cost sync Lambda triggered every 6 hours
 - Application Load Balancer
   - terminates TLS for `api.underflow.[yourdomain].com`
   - forwards `/api/v1/*` traffic to the API ECS service
@@ -67,17 +69,26 @@ cd infra\terraform\envs\production
 terraform init -backend-config=backend.hcl
 ```
 
+Before running `terraform plan` or `terraform apply` locally, build the scheduled sync Lambda artifact:
+
+```powershell
+cd apps\api
+npm install
+npm run build:lambda
+```
+
 ### 4. Run the first production apply
 
 The deploy workflow is designed to own the ongoing rollout, but it is still useful to understand the shape:
 
-1. bootstrap the ECR repository
-2. build and push the API image
-3. run full Terraform apply with the image URI
-4. run the migration task
-5. wait for ECS services to stabilize
-6. sync the frontend build to S3
-7. invalidate CloudFront
+1. build the scheduled sync Lambda artifact
+2. bootstrap the ECR repository
+3. build and push the API image
+4. run full Terraform apply with the image URI and Lambda artifact
+5. run the migration task
+6. wait for ECS services to stabilize
+7. sync the frontend build to S3
+8. invalidate CloudFront
 
 ## GitHub Environment Variables
 
@@ -97,6 +108,7 @@ Add these as `production` environment variables in GitHub:
 - `AUTH_COOKIE_DOMAIN`
 - `AUTH_COOKIE_SAME_SITE`
 - `COST_SYNC_LOOKBACK_DAYS`
+- `SCHEDULED_SYNC_INTERVAL_HOURS`
 - `AWS_SES_REGION`
 - `EMAIL_PROVIDER`
 - `BILLING_ENABLED`
@@ -136,6 +148,7 @@ Add these as `production` environment secrets in GitHub:
 
 ### `deploy-production.yml`
 
+- builds the scheduled sync Lambda artifact from the API codebase
 - initializes production Terraform
 - ensures the ECR repo exists
 - builds and pushes the current API image
@@ -166,6 +179,14 @@ The ECS task runtime role is responsible for:
 - SES send permissions
 
 For the split-domain setup, prefer leaving `AUTH_COOKIE_DOMAIN` empty so auth cookies remain host-only on `api.underflow.[yourdomain].com`.
+
+### Scheduled cost sync Lambda
+
+- runs every 6 hours through EventBridge
+- uses the same sync service path as manual account syncs
+- writes visible execution history through existing `cost_sync_runs` rows
+- emits invocation-level logs to CloudWatch
+- syncs all verified AWS accounts while relying on advisory locks to avoid duplicate per-account work
 
 ### Web
 

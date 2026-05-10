@@ -5,8 +5,9 @@ data "aws_availability_zones" "available" {
 }
 
 locals {
-  worker_image = var.worker_image_uri != "" ? var.worker_image_uri : var.api_image_uri
-  api_domain   = "api.${var.app_domain_name}"
+  worker_image                       = var.worker_image_uri != "" ? var.worker_image_uri : var.api_image_uri
+  api_domain                         = "api.${var.app_domain_name}"
+  scheduled_sync_schedule_expression = "rate(${var.scheduled_sync_interval_hours} hours)"
 
   tags = merge(
     {
@@ -67,5 +68,19 @@ locals {
     { name = "RATE_LIMIT_AUTH_MAX_REQUESTS", value = tostring(var.rate_limit_auth_max_requests) },
     { name = "RATE_LIMIT_MUTATION_WINDOW_MS", value = tostring(var.rate_limit_mutation_window_ms) },
     { name = "RATE_LIMIT_MUTATION_MAX_REQUESTS", value = tostring(var.rate_limit_mutation_max_requests) },
+  ]
+
+  lambda_environment_names = toset([
+    "NODE_ENV",
+    "DATABASE_URL",
+    "DATABASE_SSL_ENABLED",
+    "DATABASE_SSL_REJECT_UNAUTHORIZED",
+    "AWS_SES_REGION",
+    "COST_SYNC_LOOKBACK_DAYS",
+    "LOG_LEVEL",
+  ])
+
+  lambda_environment = [
+    for item in local.app_environment : item if contains(local.lambda_environment_names, item.name)
   ]
 }

@@ -8,8 +8,11 @@ This document is the minimum viable runbook for operating Underflow with a first
   - stateless HTTP API
   - should run with a runtime execution role, not long-lived production access keys
 - `apps/api` worker process
-  - runs scheduled sync and alert evaluation jobs
+  - runs alert evaluation jobs
   - should use the same AWS/runtime identity and database as the API
+- scheduled cost sync Lambda
+  - runs periodic verified-account sync every 6 hours
+  - writes invocation logs to CloudWatch and sync history through existing DB tables
 - `apps/web`
   - static frontend served separately from the API
 - PostgreSQL
@@ -48,14 +51,16 @@ Production defaults and expectations:
 2. Deploy the API.
 3. Run API migrations once against the target database.
 4. Deploy or restart the worker process.
-5. Deploy the frontend.
-6. Verify health and a basic authenticated page load.
+5. Deploy the scheduled cost sync Lambda and schedule.
+6. Deploy the frontend.
+7. Verify health and a basic authenticated page load.
 
 ### Roll back
 
 1. Roll back the API and worker to the last known good image/build.
-2. Roll back the frontend if the issue is client-visible.
-3. If a migration caused the issue, stop and restore from backup rather than improvising destructive SQL.
+2. Roll back the scheduled cost sync Lambda to the last known good artifact if needed.
+3. Roll back the frontend if the issue is client-visible.
+4. If a migration caused the issue, stop and restore from backup rather than improvising destructive SQL.
 
 ## Health And Readiness
 
@@ -63,13 +68,14 @@ Production defaults and expectations:
 - treat API readiness as:
   - database reachable
   - migrations already applied
-  - worker running separately for scheduled sync and alert evaluation
+  - worker running separately for alert evaluation
+  - scheduled sync Lambda invocations succeeding on schedule
 
 ## Observability Baseline
 
-Underflow already emits structured JSON logs to stdout/stderr. In production:
+Underflow already emits structured JSON logs to stdout/stderr, and the scheduled sync Lambda emits structured logs to CloudWatch. In production:
 
-- aggregate API and worker logs centrally
+- aggregate API, worker, and Lambda logs centrally
 - build dashboards/alerts around:
   - AWS verification failures
   - AWS sync failures

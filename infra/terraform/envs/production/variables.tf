@@ -72,6 +72,12 @@ variable "worker_memory" {
   default     = 1024
 }
 
+variable "scheduled_sync_interval_hours" {
+  description = "Interval in hours for the scheduled AWS cost sync Lambda."
+  type        = number
+  default     = 6
+}
+
 variable "db_instance_class" {
   description = "RDS instance class."
   type        = string

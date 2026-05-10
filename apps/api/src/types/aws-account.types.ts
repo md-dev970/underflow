@@ -39,6 +39,13 @@ export interface CostSyncResult {
   recordsSynced: number;
 }
 
+export interface ScheduledCostSyncSummary {
+  scannedAccounts: number;
+  syncedAccounts: number;
+  skippedAccounts: number;
+  failedAccounts: number;
+}
+
 export interface CostSummary {
   totalAmount: number;
   currency: string;
