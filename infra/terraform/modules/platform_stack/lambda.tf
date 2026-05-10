@@ -14,7 +14,7 @@ resource "aws_lambda_function" "scheduled_cost_sync" {
   function_name    = "${var.name_prefix}-scheduled-cost-sync"
   role             = aws_iam_role.scheduled_sync_lambda.arn
   runtime          = "nodejs22.x"
-  handler          = "dist/jobs/scheduled-cost-sync.lambda.handler"
+  handler          = "dist/jobs/scheduled-cost-sync-handler.handler"
   filename         = data.archive_file.scheduled_cost_sync.output_path
   source_code_hash = data.archive_file.scheduled_cost_sync.output_base64sha256
   timeout          = 900
