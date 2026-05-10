@@ -3,14 +3,14 @@ import {
   STSClient,
 } from "@aws-sdk/client-sts";
 
-import { env } from "../config/env.js";
+import { runtimeEnv } from "../config/runtime-env.js";
 import type { AwsAccount } from "../types/aws-account.types.js";
 import { AppError } from "../utils/app-error.js";
 import { awsCredentialsService, type AssumedRoleSession } from "./aws-credentials.service.js";
 
 export const awsRoleService = {
   buildStsClient(credentials: AssumedRoleSession["credentials"]): Pick<STSClient, "send"> {
-    return new STSClient({ region: env.AWS_REGION, credentials });
+    return new STSClient({ region: runtimeEnv.AWS_REGION, credentials });
   },
 
   async verifyConnection(account: AwsAccount): Promise<void> {

@@ -1,14 +1,14 @@
 import pg from "pg";
 
-import { env } from "./env.js";
+import { runtimeEnv } from "./runtime-env.js";
 
 const { Pool } = pg;
 
 export const pool = new Pool({
-  connectionString: env.DATABASE_URL,
-  ssl: env.DATABASE_SSL_ENABLED
+  connectionString: runtimeEnv.DATABASE_URL,
+  ssl: runtimeEnv.DATABASE_SSL_ENABLED
     ? {
-        rejectUnauthorized: env.DATABASE_SSL_REJECT_UNAUTHORIZED,
+        rejectUnauthorized: runtimeEnv.DATABASE_SSL_REJECT_UNAUTHORIZED,
       }
     : undefined,
 });

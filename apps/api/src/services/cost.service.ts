@@ -1,4 +1,4 @@
-import { env } from "../config/env.js";
+import { runtimeEnv } from "../config/runtime-env.js";
 import { logger } from "../lib/logger.js";
 import { awsAccountRepository } from "../repositories/aws-account.repository.js";
 import { costRepository } from "../repositories/cost.repository.js";
@@ -20,7 +20,7 @@ import { workspaceService } from "./workspace.service.js";
 const defaultDateRange = (): { from: string; to: string } => {
   const end = new Date();
   const start = new Date();
-  start.setDate(end.getDate() - env.COST_SYNC_LOOKBACK_DAYS);
+  start.setDate(end.getDate() - runtimeEnv.COST_SYNC_LOOKBACK_DAYS);
   return {
     from: start.toISOString().slice(0, 10),
     to: end.toISOString().slice(0, 10),

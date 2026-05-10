@@ -1,18 +1,22 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-const ensureTestEnv = (): void => {
+const ensureScheduledRuntimeEnv = (): void => {
   process.env.NODE_ENV = "test";
   process.env.DATABASE_URL ??=
     "postgresql://postgres:postgres@localhost:5432/underflow_test";
-  process.env.CSRF_SECRET ??= "test-csrf-secret";
-  process.env.JWT_ACCESS_SECRET ??= "test-access-secret";
-  process.env.JWT_REFRESH_SECRET ??= "test-refresh-secret";
-  process.env.CLIENT_URL ??= "http://localhost:5174";
+  process.env.DATABASE_SSL_ENABLED ??= "false";
+  process.env.DATABASE_SSL_REJECT_UNAUTHORIZED ??= "false";
+  process.env.AWS_SES_REGION ??= "us-west-2";
+  process.env.COST_SYNC_LOOKBACK_DAYS ??= "30";
+  process.env.LOG_LEVEL ??= "info";
+  delete process.env.CSRF_SECRET;
+  delete process.env.JWT_ACCESS_SECRET;
+  delete process.env.JWT_REFRESH_SECRET;
 };
 
 test("scheduled cost sync runner connects to the database and returns sync summary", async () => {
-  ensureTestEnv();
+  ensureScheduledRuntimeEnv();
 
   const { runScheduledCostSync, scheduledCostSyncDependencies } = await import(
     "../jobs/scheduled-cost-sync.js"
@@ -48,7 +52,7 @@ test("scheduled cost sync runner connects to the database and returns sync summa
 });
 
 test("scheduled cost sync Lambda handler returns a 200 with the sync summary body", async () => {
-  ensureTestEnv();
+  ensureScheduledRuntimeEnv();
 
   const [{ handler }, { scheduledCostSyncDependencies }] = await Promise.all([
     import("../jobs/scheduled-cost-sync.lambda.js"),
@@ -82,7 +86,7 @@ test("scheduled cost sync Lambda handler returns a 200 with the sync summary bod
 });
 
 test("scheduled cost sync Lambda handler surfaces failures", async () => {
-  ensureTestEnv();
+  ensureScheduledRuntimeEnv();
 
   const [{ handler }, { scheduledCostSyncDependencies }] = await Promise.all([
     import("../jobs/scheduled-cost-sync.lambda.js"),
@@ -106,7 +110,7 @@ test("scheduled cost sync Lambda handler surfaces failures", async () => {
 });
 
 test("syncAllVerifiedAccounts returns per-account summary counts", async () => {
-  ensureTestEnv();
+  ensureScheduledRuntimeEnv();
 
   const [
     { costService },
