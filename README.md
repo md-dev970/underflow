@@ -1,31 +1,66 @@
 # Underflow
 
-Underflow is a full-stack AWS cost monitoring project built to explore production-style SaaS concerns across backend APIs, frontend workflows, cloud integrations, background jobs, and infrastructure-as-code.
+[![Live Demo](https://img.shields.io/badge/live-underflow.md--dev970.com-0f172a?style=for-the-badge&logo=googlechrome&logoColor=white)](https://underflow.md-dev970.com)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Express](https://img.shields.io/badge/Express-111827?style=for-the-badge&logo=express&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonaws&logoColor=FF9900)
+![Terraform](https://img.shields.io/badge/Terraform-5C4EE5?style=for-the-badge&logo=terraform&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
 
-> Warning
-> This repository is still in active development. Core flows are implemented and tested, but some integrations and deployment steps still require manual cloud setup, real credentials, and additional hardening before this should be treated as production-ready.
+Live app: [underflow.md-dev970.com](https://underflow.md-dev970.com)  
+Technical walkthrough: [Architecture Overview](./docs/architecture.md)
 
-## Why This Project Is Worth Looking At
+Underflow is a live full-stack application for teams that need better visibility into AWS spend across multiple accounts and workspaces. It helps users connect AWS accounts through cross-account roles, sync cost data into a reporting layer, and track spend through dashboards, alerts, and notifications before costs drift too far.
 
-Underflow is intentionally broader than a CRUD demo. It brings together:
+## Problem
 
-- Full-stack TypeScript across an Express API and React frontend
-- Browser/mobile authentication flows with session invalidation and CSRF protection
-- AWS-oriented backend capabilities such as AssumeRole metadata, cost sync orchestration, and SES groundwork
-- Background jobs for sync and alert evaluation
-- Billing-oriented flows and notification infrastructure
-- Terraform-based infrastructure setup for SES and DNS delegation
-- Terraform and GitHub Actions scaffolding for a first ECS/CloudFront production deployment
+AWS cost tooling is powerful, but day-to-day cost visibility can still feel fragmented when a team is working across multiple environments, accounts, and owners. Underflow is built to reduce that friction by giving teams a focused place to:
 
-## What Underflow Does Today
+- organize cloud spend by workspace
+- connect multiple AWS accounts safely through AssumeRole
+- review synced cost data without querying AWS live on every page load
+- create alerts and notification flows around budget drift
 
-- Auth for browser and mobile-style clients
-- Workspace-scoped cost monitoring flows
-- AWS account onboarding via AssumeRole metadata
-- Manual and scheduled cost sync foundations
-- Cost summaries, service breakdowns, and timeseries reporting
-- Budget alert creation and notification feed surfaces
-- SES/domain infrastructure bootstrap via Terraform
+## What Underflow Does
+
+- centralizes workspace-based AWS cost monitoring
+- stores connected-account metadata for secure cross-account access
+- syncs and persists cost data for reporting and historical analysis
+- exposes cost summaries, service breakdowns, timeseries views, and sync history
+- supports alert creation, alert evaluation, and notification delivery
+- includes session-based authentication, profile/session management, and password reset flows
+
+## Core Capabilities
+
+- Multi-workspace model for separating teams, environments, or clients
+- AWS account onboarding through a standardized `AssumeRole` flow
+- Persisted reporting model backed by PostgreSQL rather than live Cost Explorer requests on every view
+- Budget alerts and notification workflows backed by worker processes
+- SES-backed auth and alert email delivery
+- Terraform-managed infrastructure for DNS, SES, CI/CD bootstrap, ECS, RDS, S3, and CloudFront
+
+## How It Works
+
+```mermaid
+flowchart LR
+    User["Browser User"] --> Web["React Web App"]
+    Web --> API["Express API"]
+    API --> DB["PostgreSQL"]
+    API --> AWS["AWS Services<br/>STS / Cost Explorer / SES"]
+    Worker["Background Worker"] --> DB
+    Worker --> AWS
+    API --> Customer["Customer AWS Accounts<br/>AssumeRole"]
+```
+
+Underflow separates the customer-facing frontend, the API, and the background worker so cost syncs, alert evaluation, and notification delivery can run independently from the UI. The backend assumes customer roles only when needed, while synced reporting data stays in PostgreSQL for fast dashboard queries.
+
+## Why This Project Is Credible
+
+- it spans product UI, backend services, background jobs, cloud integrations, and infrastructure
+- it uses real production concerns such as session invalidation, CSRF protection, ECS deployment, SES email, CI/CD, and Terraform-managed AWS resources
+- it is deployed live, not just developed locally
 
 ## Tech Stack
 
@@ -50,45 +85,30 @@ Underflow is intentionally broader than a CRUD demo. It brings together:
 ### Infrastructure
 
 - Terraform
+- ECS Fargate
+- Amazon RDS for PostgreSQL
+- Amazon S3
+- CloudFront
 - Route 53
 - Amazon SES
+- GitHub Actions
 
-## Architecture At A Glance
+## Deployment
 
-- `apps/api`
-  - Express API, auth/session flows, AWS integrations, background workers, DB migrations, and tests
-- `apps/web`
-  - React application for auth, onboarding, workspace management, AWS connection, costs, alerts, and settings
-- `infra/terraform`
-  - Shared infrastructure code, currently focused on SES domain setup and Route 53 delegation for a project subdomain
-- `docs`
-  - Additional technical documentation and development notes
+Underflow is deployed as:
 
-For a deeper walkthrough, see [docs/architecture.md](./docs/architecture.md).
+- a React frontend served from S3 through CloudFront
+- an Express API running on ECS Fargate
+- a background worker service for sync and alert execution
+- a PostgreSQL database on Amazon RDS
+- AWS-managed DNS, certificates, and email infrastructure
 
-## Repository Status
+For the deployment topology and operational setup, see:
 
-This repository is best described as a development-stage, production-style showcase project.
+- [docs/production-deployment.md](./docs/production-deployment.md)
+- [docs/production-operations.md](./docs/production-operations.md)
 
-### Stable enough to demonstrate
-
-- Local API and frontend development workflows
-- API migrations
-- Automated API and frontend tests
-- Auth flows
-- Workspace, AWS account, cost-monitoring, and alert management UI
-- SES subdomain infrastructure scaffolding
-
-### Still in progress or requiring manual setup
-
-- Real AWS AssumeRole and Cost Explorer validation against live accounts
-- End-to-end SES production sending approval and live email delivery verification
-- Production deployment topology and operations
-- Final billing/provider hardening
-
-See [docs/status-and-limitations.md](./docs/status-and-limitations.md) for a more concrete maturity summary.
-
-## Quickstart
+## Local Development
 
 ### Before first run
 
@@ -162,30 +182,23 @@ npm run build
 npm test
 ```
 
-## Infrastructure And Email Notes
+## Operational Notes
 
-- SES/DNS infrastructure now lives under [`infra/terraform`](./infra/terraform)
-- The current recommended pattern is a delegated subdomain such as `underflow.example.com`
-- Terraform can manage:
+- SES and DNS infrastructure lives under [`infra/terraform`](./infra/terraform)
+- the current production pattern uses:
+  - `underflow.<domain>` for the web frontend
+  - `api.underflow.<domain>` for the API
+- Terraform can provision:
   - Route 53 hosted zone, SES identity, DKIM, MAIL FROM, and DMARC records
   - bootstrap CI/CD infrastructure such as Terraform remote state and GitHub OIDC
-  - production ECS, RDS, S3, and CloudFront deployment topology
-- Parent-domain delegation and SES production-access approval still require manual AWS/DNS steps
+  - production ECS, RDS, S3, CloudFront, and ALB deployment topology
 
-See:
+Additional references:
 
-- [docs/local-development.md](./docs/local-development.md)
-- [docs/production-operations.md](./docs/production-operations.md)
-- [docs/production-deployment.md](./docs/production-deployment.md)
+- [docs/architecture.md](./docs/architecture.md)
 - [docs/customer-aws-onboarding.md](./docs/customer-aws-onboarding.md)
 - [docs/status-and-limitations.md](./docs/status-and-limitations.md)
 - [`infra/terraform/README.md`](./infra/terraform/README.md)
-
-## Roadmap Direction
-
-- Validate real AWS cost syncs and alert evaluation against live accounts
-- Finalize SES-backed email delivery end to end
-- Continue improving reliability, observability, and operational polish
 
 ## License
 
