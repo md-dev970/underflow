@@ -109,9 +109,3 @@ Email is treated as a real integration boundary rather than a mocked afterthough
   - shared DB/AWS/logging config is used by API, worker, and Lambda
   - auth/cookie-specific config is validated only in the API runtime
 - Some cloud integrations are fully wired but still benefit from live-account validation before they should be considered fully hardened
-
-## What A Reviewer Should Notice
-
-- The project goes beyond UI work and touches auth, DB migrations, cloud integrations, background jobs, testing, and infrastructure
-- Production concerns are visible in deployment, session handling, logging, and cloud access patterns
-- The implementation is broad enough to demonstrate end-to-end engineering ownership, not just isolated feature work

@@ -9,6 +9,8 @@
 ![Terraform](https://img.shields.io/badge/Terraform-5C4EE5?style=for-the-badge&logo=terraform&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
 
+![Underflow overview](./apps/web/src/assets/showcase/overview-light.png)
+
 Live app: [underflow.md-dev970.com](https://underflow.md-dev970.com)  
 Technical walkthrough: [Architecture Overview](./docs/architecture.md)
 
@@ -49,23 +51,17 @@ flowchart LR
     User["Browser User"] --> Web["React Web App"]
     Web --> API["Express API"]
     API --> DB["PostgreSQL"]
-    API --> AWS["AWS Services<br/>STS / Cost Explorer / SES"]
+    API --> AWS["AWS Services"]
     Worker["Alert Worker"] --> DB
     Worker --> AWS
     Schedule["EventBridge Schedule"] --> Sync["Scheduled Cost Sync Lambda"]
     Sync --> DB
     Sync --> AWS
-    API --> Customer["Customer AWS Accounts<br/>AssumeRole"]
+    API --> Customer["Customer AWS Accounts"]
     Sync --> Customer
 ```
 
 Underflow separates the customer-facing frontend, the API, the scheduled sync runtime, and the alert worker so cost collection, alert evaluation, and notification delivery can run independently from the UI. The backend assumes customer roles only when needed, while synced reporting data stays in PostgreSQL for fast dashboard queries.
-
-## Why This Project Is Credible
-
-- it spans product UI, backend services, background jobs, cloud integrations, and infrastructure
-- it uses real production concerns such as session invalidation, CSRF protection, ECS deployment, SES email, CI/CD, and Terraform-managed AWS resources
-- it is deployed live, not just developed locally
 
 ## Tech Stack
 
