@@ -13,6 +13,7 @@ This document is the minimum viable runbook for operating Underflow with a first
 - scheduled cost sync Lambda
   - runs periodic verified-account sync every 6 hours
   - writes invocation logs to CloudWatch and sync history through existing DB tables
+  - uses shared runtime DB/AWS/logging config rather than the API-only auth/cookie config
 - `apps/web`
   - static frontend served separately from the API
 - PostgreSQL
@@ -55,6 +56,13 @@ Production defaults and expectations:
 6. Deploy the frontend.
 7. Verify health and a basic authenticated page load.
 
+If deploying locally through Terraform instead of GitHub Actions, rebuild the Lambda artifact before `plan` or `apply`:
+
+```powershell
+cd apps\api
+npm run build:lambda
+```
+
 ### Roll back
 
 1. Roll back the API and worker to the last known good image/build.
@@ -87,6 +95,8 @@ Recommended counters to track from logs:
 
 - successful sync count
 - failed sync count
+- scheduled Lambda invocation count
+- scheduled Lambda failure count
 - successful alert delivery count
 - failed alert delivery count
 - failed auth email delivery count
@@ -111,6 +121,23 @@ Check:
 - billing data is actually available for the requested time range
 - the selected account/date filters in the UI are correct
 - sync history does not show Cost Explorer permission or data-availability errors
+
+### Scheduled sync Lambda fails before app logs appear
+
+Check:
+
+- the deployed Lambda handler matches:
+  - `dist/jobs/scheduled-cost-sync-handler.handler`
+- the latest Lambda artifact was rebuilt before Terraform applied it
+- the Lambda invoke response includes tail logs from:
+  - `aws lambda invoke --log-type Tail ...`
+- required shared runtime env is present:
+  - `DATABASE_URL`
+  - `DATABASE_SSL_ENABLED`
+  - `DATABASE_SSL_REJECT_UNAUTHORIZED`
+  - `AWS_SES_REGION`
+  - `COST_SYNC_LOOKBACK_DAYS`
+  - `LOG_LEVEL`
 
 ### SES / email failures
 
