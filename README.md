@@ -50,9 +50,13 @@ flowchart LR
     Web --> API["Express API"]
     API --> DB["PostgreSQL"]
     API --> AWS["AWS Services<br/>STS / Cost Explorer / SES"]
-    Worker["Background Worker"] --> DB
+    Worker["Alert Worker"] --> DB
     Worker --> AWS
+    Schedule["EventBridge Schedule"] --> Sync["Scheduled Cost Sync Lambda"]
+    Sync --> DB
+    Sync --> AWS
     API --> Customer["Customer AWS Accounts<br/>AssumeRole"]
+    Sync --> Customer
 ```
 
 Underflow separates the customer-facing frontend, the API, the scheduled sync runtime, and the alert worker so cost collection, alert evaluation, and notification delivery can run independently from the UI. The backend assumes customer roles only when needed, while synced reporting data stays in PostgreSQL for fast dashboard queries.
@@ -87,6 +91,8 @@ Underflow separates the customer-facing frontend, the API, the scheduled sync ru
 
 - Terraform
 - ECS Fargate
+- AWS Lambda
+- Amazon EventBridge
 - Amazon RDS for PostgreSQL
 - Amazon S3
 - CloudFront
