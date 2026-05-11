@@ -38,6 +38,7 @@ AWS cost tooling is powerful, but day-to-day cost visibility can still feel frag
 - AWS account onboarding through a standardized `AssumeRole` flow
 - Persisted reporting model backed by PostgreSQL rather than live Cost Explorer requests on every view
 - Budget alerts and notification workflows backed by worker processes
+- EventBridge-scheduled Lambda execution for recurring verified-account cost sync
 - SES-backed auth and alert email delivery
 - Terraform-managed infrastructure for DNS, SES, CI/CD bootstrap, ECS, RDS, S3, and CloudFront
 
@@ -189,6 +190,7 @@ npm test
 - the current production pattern uses:
   - `underflow.<domain>` for the web frontend
   - `api.underflow.<domain>` for the API
+- scheduled cost sync runs through EventBridge + Lambda, while the ECS worker stays focused on alert evaluation
 - Terraform can provision:
   - Route 53 hosted zone, SES identity, DKIM, MAIL FROM, and DMARC records
   - bootstrap CI/CD infrastructure such as Terraform remote state and GitHub OIDC

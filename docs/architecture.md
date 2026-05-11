@@ -71,12 +71,24 @@ Infrastructure code provisions the production AWS footprint and supporting integ
 - A scheduled Lambda can run cost sync across all verified AWS accounts on a fixed interval
 - Reporting endpoints expose summary, by-service, timeseries, and sync history views
 - The frontend presents this through workspace-scoped dashboards and detail pages
+- Manual syncs and scheduled syncs share the same persistence path and use advisory locks to avoid duplicate per-account work
 
 ### Alerts and notifications
 
 - Alert rules are attached to a workspace, optionally scoped to a specific AWS account
 - The ECS worker evaluates active alerts on a schedule
 - Notification delivery and status are persisted and surfaced in the frontend feed
+
+## Runtime Ownership
+
+- ECS API
+  - handles browser/app HTTP traffic
+  - owns auth, workspace management, AWS account onboarding, reporting APIs, and manual sync triggers
+- ECS worker
+  - handles scheduled alert evaluation and related background work
+- Lambda + EventBridge
+  - handles recurring verified-account cost sync every 6 hours
+  - writes CloudWatch invocation logs and DB-backed sync history through existing `cost_sync_runs`
 
 ## Email / SES Integration Boundary
 
@@ -93,6 +105,9 @@ Email is treated as a real integration boundary rather than a mocked afterthough
 - Background processing is intentionally split by responsibility:
   - Lambda handles scheduled cost sync
   - ECS worker handles alert evaluation
+- Runtime configuration is intentionally split as well:
+  - shared DB/AWS/logging config is used by API, worker, and Lambda
+  - auth/cookie-specific config is validated only in the API runtime
 - Some cloud integrations are fully wired but still benefit from live-account validation before they should be considered fully hardened
 
 ## What A Reviewer Should Notice

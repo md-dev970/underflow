@@ -77,6 +77,8 @@ npm install
 npm run build:lambda
 ```
 
+The Lambda artifact is built from the API codebase and must exist before Terraform can package it locally.
+
 ### 4. Run the first production apply
 
 The deploy workflow is designed to own the ongoing rollout, but it is still useful to understand the shape:
@@ -155,6 +157,7 @@ Add these as `production` environment secrets in GitHub:
 - applies Terraform with the image URI
 - runs migrations through ECS
 - waits for API and worker services to stabilize
+- updates the scheduled sync Lambda code package and handler configuration when Lambda-related changes are present
 
 ### `deploy-web.yml`
 
@@ -187,6 +190,7 @@ For the split-domain setup, prefer leaving `AUTH_COOKIE_DOMAIN` empty so auth co
 - writes visible execution history through existing `cost_sync_runs` rows
 - emits invocation-level logs to CloudWatch
 - syncs all verified AWS accounts while relying on advisory locks to avoid duplicate per-account work
+- validates only the shared runtime env needed for DB/AWS/logging rather than API-only auth/cookie config
 
 ### Web
 
@@ -213,5 +217,53 @@ Run these checks immediately after the first deployment:
 ## Rollback Guidance
 
 - roll back API/worker by redeploying the previous image tag
+- roll back the scheduled sync Lambda by applying the previous Terraform/code revision if the issue is limited to recurring sync
 - redeploy the previous web build if the issue is frontend-only
 - if a migration introduced the problem, stop and restore from backup rather than improvising production SQL
+
+## Lambda Troubleshooting
+
+If the scheduled sync Lambda fails in production:
+
+1. Inspect the Lambda invocation response with tail logs:
+
+```bash
+aws lambda invoke \
+  --region us-west-2 \
+  --function-name underflow-prod-scheduled-cost-sync \
+  --log-type Tail \
+  response.json \
+  --query 'LogResult' \
+  --output text | base64 --decode
+
+cat response.json
+```
+
+2. Check the configured handler:
+
+```bash
+aws lambda get-function-configuration \
+  --region us-west-2 \
+  --function-name underflow-prod-scheduled-cost-sync \
+  --query 'Handler' \
+  --output text
+```
+
+Expected handler:
+
+```text
+dist/jobs/scheduled-cost-sync-handler.handler
+```
+
+3. If local `terraform apply` is being used, rebuild the Lambda artifact first:
+
+```powershell
+cd apps\api
+npm run build:lambda
+```
+
+4. If the Lambda still fails before structured app logs appear, look for bootstrap errors such as:
+
+- `Runtime.HandlerNotFound`
+- missing module/package errors
+- missing required runtime environment variables
