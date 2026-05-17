@@ -1,6 +1,5 @@
 # Underflow
 
-[![Live Demo](https://img.shields.io/badge/live-underflow.md--dev970.com-0f172a?style=for-the-badge&logo=googlechrome&logoColor=white)](https://underflow.md-dev970.com)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![Express](https://img.shields.io/badge/Express-111827?style=for-the-badge&logo=express&logoColor=white)
@@ -11,7 +10,7 @@
 
 ![Underflow overview](./apps/web/src/assets/showcase/overview-light.png)
 
-Live app: [underflow.md-dev970.com](https://underflow.md-dev970.com)  
+
 Technical walkthrough: [Architecture Overview](./docs/architecture.md)
 
 Underflow is a live full-stack application for teams that need better visibility into AWS spend across multiple accounts and workspaces. It helps users connect AWS accounts through cross-account roles, sync cost data into a reporting layer, and track spend through dashboards, alerts, and notifications before costs drift too far.
