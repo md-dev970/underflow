@@ -51,3 +51,6 @@ UI.html
 
 
 response.json
+
+# Local commit orchestration helpers
+/commit-benchmark-changes.sh
