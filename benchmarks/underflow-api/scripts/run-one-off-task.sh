@@ -2,8 +2,8 @@
 set -euo pipefail
 
 MODE="${1:-}"
-if [[ "$MODE" != "migrate" && "$MODE" != "seed" ]]; then
-  echo "usage: $0 migrate|seed" >&2
+if [[ "$MODE" != "migrate" && "$MODE" != "seed" && "$MODE" != "explain" ]]; then
+  echo "usage: $0 migrate|seed|explain" >&2
   exit 2
 fi
 
@@ -30,9 +30,31 @@ SUBNET_LIST="$(IFS=,; echo "${SUBNETS[*]}")"
 if [[ "$MODE" == "migrate" ]]; then
   COMMAND_JSON='["node","dist/db/migrate.js"]'
   ENVIRONMENT_JSON='[]'
-else
+elif [[ "$MODE" == "seed" ]]; then
   COMMAND_JSON='["node","dist/scripts/seed-benchmark.js"]'
   ENVIRONMENT_JSON='[{"name":"ALLOW_BENCHMARK_SEED","value":"true"}]'
+else
+  EXPLAIN_SCRIPT='import { pool } from "./dist/config/db.js";
+const workspaceId = "20000000-0000-4000-8000-000000000001";
+const explain = await pool.query(`EXPLAIN (ANALYZE, BUFFERS, SETTINGS, FORMAT JSON)
+  SELECT COALESCE(SUM(amount), 0) AS total_amount,
+         COALESCE(MAX(currency), '\''USD'\'') AS currency
+  FROM cost_snapshots
+  WHERE workspace_id = $1
+    AND usage_date BETWEEN $2 AND $3
+    AND ($4::uuid IS NULL OR aws_account_id = $4::uuid)`,
+  [workspaceId, "2025-01-01", "2025-12-31", null]);
+const stats = await pool.query(`SELECT
+  pg_size_pretty(pg_total_relation_size('\''cost_snapshots'\'')) AS total_size,
+  pg_size_pretty(pg_relation_size('\''cost_snapshots'\'')) AS table_size,
+  pg_size_pretty(pg_indexes_size('\''cost_snapshots'\'')) AS indexes_size,
+  n_live_tup, seq_scan, idx_scan
+  FROM pg_stat_user_tables
+  WHERE relname = '\''cost_snapshots'\''`);
+console.log(JSON.stringify({ benchmarkDiagnostic: true, stats: stats.rows[0], plan: explain.rows[0]["QUERY PLAN"] }, null, 2));
+await pool.end();'
+  COMMAND_JSON="$(jq -cn --arg script "$EXPLAIN_SCRIPT" '["node","--input-type=module","--eval",$script]')"
+  ENVIRONMENT_JSON='[]'
 fi
 
 OVERRIDES="$(jq -cn \

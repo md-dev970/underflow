@@ -134,6 +134,15 @@ jq -e '.users == 10 and .workspaces == 10 and .awsAccounts == 200 and .costSnaps
 
 The seeder requires `ALLOW_BENCHMARK_SEED=true`, uses only reserved UUIDs and `example.invalid` identities, bulk-loads with PostgreSQL set operations, replaces only its fixed dataset, verifies exact counts, and runs `ANALYZE`. The generated password is never logged. The first identity is `benchmark+01@example.invalid`, and its workspace is `20000000-0000-4000-8000-000000000001`.
 
+To capture a baseline PostgreSQL execution plan for the full-year cost-summary query without exposing RDS publicly, run the diagnostic one-off task and preserve its sanitized output:
+
+```bash
+export BENCHMARK_RESULTS_DIR="$RESULTS_DIR"
+"$REPO_ROOT/benchmarks/underflow-api/scripts/run-one-off-task.sh" explain
+```
+
+The resulting `explain-task.log` contains `EXPLAIN (ANALYZE, BUFFERS, SETTINGS, FORMAT JSON)` plus sanitized `cost_snapshots` table/index size and scan counters. Capture this baseline before adding an index or changing the query.
+
 ## Preflight and k6 execution
 
 Run native k6 from this host, outside ECS and outside Docker. The ALB permits only `load_test_cidr`, so it must be this host's current public `/32`; if the address changes, update `terraform.tfvars`, review a new plan, and apply it before continuing. Fetch the generated synthetic password into an environment variable without echoing it, then disable shell history and verify one healthy task, the seed counts, and health before testing.
