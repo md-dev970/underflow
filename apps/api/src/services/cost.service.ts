@@ -66,6 +66,8 @@ export const costService = {
           const recordsSynced = await costRepository.replaceSnapshots({
             workspaceId: awsAccount.workspaceId,
             awsAccountId: awsAccount.id,
+            from: syncRange.from,
+            to: syncRange.to,
             entries,
           });
 
@@ -164,6 +166,8 @@ export const costService = {
             await costRepository.replaceSnapshots({
               workspaceId: account.workspaceId,
               awsAccountId: account.id,
+              from: range.from,
+              to: range.to,
               entries,
             });
 

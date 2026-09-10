@@ -2,8 +2,8 @@
 set -euo pipefail
 
 MODE="${1:-}"
-if [[ "$MODE" != "migrate" && "$MODE" != "seed" && "$MODE" != "explain" ]]; then
-  echo "usage: $0 migrate|seed|explain" >&2
+if [[ "$MODE" != "migrate" && "$MODE" != "seed" && "$MODE" != "rollup" && "$MODE" != "explain" ]]; then
+  echo "usage: $0 migrate|seed|rollup|explain" >&2
   exit 2
 fi
 
@@ -33,27 +33,27 @@ if [[ "$MODE" == "migrate" ]]; then
 elif [[ "$MODE" == "seed" ]]; then
   COMMAND_JSON='["node","dist/scripts/seed-benchmark.js"]'
   ENVIRONMENT_JSON='[{"name":"ALLOW_BENCHMARK_SEED","value":"true"}]'
+elif [[ "$MODE" == "rollup" ]]; then
+  COMMAND_JSON='["node","dist/scripts/backfill-cost-rollups.js"]'
+  ENVIRONMENT_JSON='[{"name":"ALLOW_COST_ROLLUP_BACKFILL","value":"true"}]'
 else
   EXPLAIN_SCRIPT='import { pool } from "./dist/config/db.js";
 const workspaceId = "20000000-0000-4000-8000-000000000001";
-const parameters = [workspaceId, "2025-01-01", "2025-12-31", null];
+const parameters = [workspaceId, "2025-01-01", "2025-12-31"];
 const queries = {
-  summary: `SELECT COALESCE(SUM(amount), 0) AS total_amount,
+  summary: `SELECT COALESCE(SUM(total_amount), 0) AS total_amount,
     COALESCE(MAX(currency), '\''USD'\'') AS currency
-    FROM cost_snapshots
-    WHERE workspace_id = $1 AND usage_date BETWEEN $2 AND $3
-      AND ($4::uuid IS NULL OR aws_account_id = $4::uuid)`,
-  timeseries: `SELECT usage_date, SUM(amount) AS total_amount,
+    FROM workspace_cost_daily_rollups
+    WHERE workspace_id = $1 AND usage_date BETWEEN $2 AND $3`,
+  timeseries: `SELECT usage_date, SUM(total_amount) AS total_amount,
     COALESCE(MAX(currency), '\''USD'\'') AS currency
-    FROM cost_snapshots
+    FROM workspace_cost_daily_rollups
     WHERE workspace_id = $1 AND usage_date BETWEEN $2 AND $3
-      AND ($4::uuid IS NULL OR aws_account_id = $4::uuid)
     GROUP BY usage_date ORDER BY usage_date ASC`,
-  byService: `SELECT service_name, SUM(amount) AS total_amount,
+  byService: `SELECT service_name, SUM(total_amount) AS total_amount,
     COALESCE(MAX(currency), '\''USD'\'') AS currency
-    FROM cost_snapshots
+    FROM workspace_cost_daily_rollups
     WHERE workspace_id = $1 AND usage_date BETWEEN $2 AND $3
-      AND ($4::uuid IS NULL OR aws_account_id = $4::uuid)
     GROUP BY service_name ORDER BY total_amount DESC`,
 };
 const plans = {};
@@ -61,14 +61,15 @@ for (const [name, sql] of Object.entries(queries)) {
   const result = await pool.query(`EXPLAIN (ANALYZE, BUFFERS, SETTINGS, FORMAT JSON) ${sql}`, parameters);
   plans[name] = result.rows[0]["QUERY PLAN"];
 }
-const stats = await pool.query(`SELECT
-  pg_size_pretty(pg_total_relation_size('\''cost_snapshots'\'')) AS total_size,
-  pg_size_pretty(pg_relation_size('\''cost_snapshots'\'')) AS table_size,
-  pg_size_pretty(pg_indexes_size('\''cost_snapshots'\'')) AS indexes_size,
+const stats = await pool.query(`SELECT relname,
+  pg_size_pretty(pg_total_relation_size(relid)) AS total_size,
+  pg_size_pretty(pg_relation_size(relid)) AS table_size,
+  pg_size_pretty(pg_indexes_size(relid)) AS indexes_size,
   n_live_tup, seq_scan, idx_scan
   FROM pg_stat_user_tables
-  WHERE relname = '\''cost_snapshots'\''`);
-console.log(JSON.stringify({ benchmarkDiagnostic: true, stats: stats.rows[0], plans }, null, 2));
+  WHERE relname IN ('\''cost_snapshots'\'', '\''workspace_cost_daily_rollups'\'')
+  ORDER BY relname`);
+console.log(JSON.stringify({ benchmarkDiagnostic: true, stats: stats.rows, plans }, null, 2));
 await pool.end();'
   COMMAND_JSON="$(jq -cn --arg script "$EXPLAIN_SCRIPT" '["node","--input-type=module","--eval",$script]')"
   ENVIRONMENT_JSON='[]'
@@ -130,8 +131,19 @@ fi
 if [[ "$MODE" == "seed" ]]; then
   jq '[.events[].message | fromjson? | select(.dataset == "underflow-api-benchmark-v1")] | last' \
     "$RESULTS_DIR/seed-task.log" > "$RESULTS_DIR/dataset.json"
-  jq -e '.costSnapshots == 3650000 and .users == 10 and .workspaces == 10 and .awsAccounts == 200' \
+  jq -e '.costSnapshots == 3650000 and .costRollups == 182500 and .users == 10 and .workspaces == 10 and .awsAccounts == 200' \
     "$RESULTS_DIR/dataset.json" >/dev/null
+elif [[ "$MODE" == "rollup" ]]; then
+  jq '[.events[].message | fromjson? | select(.costRollupBackfill == true)] | last' \
+    "$RESULTS_DIR/rollup-task.log" > "$RESULTS_DIR/rollup.json"
+  jq -e '.rows == 182500' "$RESULTS_DIR/rollup.json" >/dev/null
+
+  if [[ -f "$RESULTS_DIR/dataset.json" ]]; then
+    DATASET_TMP="$(mktemp)"
+    jq --slurpfile rollup "$RESULTS_DIR/rollup.json" \
+      '.costRollups = $rollup[0].rows' "$RESULTS_DIR/dataset.json" > "$DATASET_TMP"
+    mv "$DATASET_TMP" "$RESULTS_DIR/dataset.json"
+  fi
 fi
 
 echo "Benchmark $MODE task completed with exit code 0"

@@ -1,3 +1,5 @@
+import type { PoolClient } from "pg";
+
 import { pool } from "../config/db.js";
 import type {
   CostQueryInput,
@@ -7,6 +9,31 @@ import type {
   SyncHistoryQueryInput,
   TimeseriesCostPoint,
 } from "../types/aws-account.types.js";
+
+const rebuildWorkspaceRollups = async (
+  client: PoolClient,
+  workspaceId: string,
+  from: string,
+  to: string,
+): Promise<void> => {
+  await client.query(
+    `DELETE FROM workspace_cost_daily_rollups
+     WHERE workspace_id = $1
+       AND usage_date BETWEEN $2 AND $3`,
+    [workspaceId, from, to],
+  );
+  await client.query(
+    `INSERT INTO workspace_cost_daily_rollups (
+       workspace_id, usage_date, service_name, total_amount, currency, updated_at
+     )
+     SELECT workspace_id, usage_date, service_name, SUM(amount), MAX(currency), NOW()
+     FROM cost_snapshots
+     WHERE workspace_id = $1
+       AND usage_date BETWEEN $2 AND $3
+     GROUP BY workspace_id, usage_date, service_name`,
+    [workspaceId, from, to],
+  );
+};
 
 export const costRepository = {
   async createSyncRun(awsAccountId: string): Promise<string> {
@@ -45,6 +72,8 @@ export const costRepository = {
   async replaceSnapshots(input: {
     workspaceId: string;
     awsAccountId: string;
+    from: string;
+    to: string;
     entries: Array<{
       usageDate: string;
       serviceName: string;
@@ -52,35 +81,69 @@ export const costRepository = {
       currency: string;
     }>;
   }): Promise<number> {
-    for (const entry of input.entries) {
-      await pool.query(
-        `INSERT INTO cost_snapshots (workspace_id, aws_account_id, usage_date, service_name, amount, currency)
-         VALUES ($1, $2, $3, $4, $5, $6)
-         ON CONFLICT (workspace_id, aws_account_id, usage_date, service_name)
-         DO UPDATE SET amount = EXCLUDED.amount, currency = EXCLUDED.currency`,
-        [
-          input.workspaceId,
-          input.awsAccountId,
-          entry.usageDate,
-          entry.serviceName,
-          entry.amount,
-          entry.currency,
-        ],
-      );
-    }
+    const client = await pool.connect();
 
-    return input.entries.length;
+    try {
+      await client.query("BEGIN");
+      // Account syncs are independently locked, so serialize mutations and
+      // rollup refreshes for the same workspace.
+      await client.query(
+        "SELECT pg_advisory_xact_lock(hashtext('cost-rollup:' || $1::text))",
+        [input.workspaceId],
+      );
+      await client.query(
+        `DELETE FROM cost_snapshots
+         WHERE workspace_id = $1
+           AND aws_account_id = $2
+           AND usage_date BETWEEN $3 AND $4`,
+        [input.workspaceId, input.awsAccountId, input.from, input.to],
+      );
+
+      for (const entry of input.entries) {
+        await client.query(
+          `INSERT INTO cost_snapshots (workspace_id, aws_account_id, usage_date, service_name, amount, currency)
+           VALUES ($1, $2, $3, $4, $5, $6)
+           ON CONFLICT (workspace_id, aws_account_id, usage_date, service_name)
+           DO UPDATE SET amount = EXCLUDED.amount, currency = EXCLUDED.currency`,
+          [
+            input.workspaceId,
+            input.awsAccountId,
+            entry.usageDate,
+            entry.serviceName,
+            entry.amount,
+            entry.currency,
+          ],
+        );
+      }
+
+      await rebuildWorkspaceRollups(client, input.workspaceId, input.from, input.to);
+      await client.query("COMMIT");
+      return input.entries.length;
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.release();
+    }
   },
 
   async getSummary(workspaceId: string, input: CostQueryInput): Promise<CostSummary> {
-    const result = await pool.query(
-      `SELECT COALESCE(SUM(amount), 0) AS total_amount, COALESCE(MAX(currency), 'USD') AS currency
-       FROM cost_snapshots
-       WHERE workspace_id = $1
-         AND usage_date BETWEEN $2 AND $3
-         AND ($4::uuid IS NULL OR aws_account_id = $4::uuid)`,
-      [workspaceId, input.from, input.to, input.awsAccountId ?? null],
-    );
+    const result = input.awsAccountId
+      ? await pool.query(
+          `SELECT COALESCE(SUM(amount), 0) AS total_amount, COALESCE(MAX(currency), 'USD') AS currency
+           FROM cost_snapshots
+           WHERE workspace_id = $1
+             AND usage_date BETWEEN $2 AND $3
+             AND aws_account_id = $4::uuid`,
+          [workspaceId, input.from, input.to, input.awsAccountId],
+        )
+      : await pool.query(
+          `SELECT COALESCE(SUM(total_amount), 0) AS total_amount, COALESCE(MAX(currency), 'USD') AS currency
+           FROM workspace_cost_daily_rollups
+           WHERE workspace_id = $1
+             AND usage_date BETWEEN $2 AND $3`,
+          [workspaceId, input.from, input.to],
+        );
 
     return {
       totalAmount: Number(result.rows[0]?.total_amount ?? 0),
@@ -94,16 +157,26 @@ export const costRepository = {
     workspaceId: string,
     input: CostQueryInput,
   ): Promise<ServiceCostBreakdownItem[]> {
-    const result = await pool.query(
-      `SELECT service_name, SUM(amount) AS total_amount, COALESCE(MAX(currency), 'USD') AS currency
-       FROM cost_snapshots
-       WHERE workspace_id = $1
-         AND usage_date BETWEEN $2 AND $3
-         AND ($4::uuid IS NULL OR aws_account_id = $4::uuid)
-       GROUP BY service_name
-       ORDER BY total_amount DESC`,
-      [workspaceId, input.from, input.to, input.awsAccountId ?? null],
-    );
+    const result = input.awsAccountId
+      ? await pool.query(
+          `SELECT service_name, SUM(amount) AS total_amount, COALESCE(MAX(currency), 'USD') AS currency
+           FROM cost_snapshots
+           WHERE workspace_id = $1
+             AND usage_date BETWEEN $2 AND $3
+             AND aws_account_id = $4::uuid
+           GROUP BY service_name
+           ORDER BY total_amount DESC`,
+          [workspaceId, input.from, input.to, input.awsAccountId],
+        )
+      : await pool.query(
+          `SELECT service_name, SUM(total_amount) AS total_amount, COALESCE(MAX(currency), 'USD') AS currency
+           FROM workspace_cost_daily_rollups
+           WHERE workspace_id = $1
+             AND usage_date BETWEEN $2 AND $3
+           GROUP BY service_name
+           ORDER BY total_amount DESC`,
+          [workspaceId, input.from, input.to],
+        );
 
     return result.rows.map((row) => ({
       serviceName: String(row.service_name),
@@ -116,16 +189,26 @@ export const costRepository = {
     workspaceId: string,
     input: CostQueryInput,
   ): Promise<TimeseriesCostPoint[]> {
-    const result = await pool.query(
-      `SELECT usage_date, SUM(amount) AS total_amount, COALESCE(MAX(currency), 'USD') AS currency
-       FROM cost_snapshots
-       WHERE workspace_id = $1
-         AND usage_date BETWEEN $2 AND $3
-         AND ($4::uuid IS NULL OR aws_account_id = $4::uuid)
-       GROUP BY usage_date
-       ORDER BY usage_date ASC`,
-      [workspaceId, input.from, input.to, input.awsAccountId ?? null],
-    );
+    const result = input.awsAccountId
+      ? await pool.query(
+          `SELECT usage_date, SUM(amount) AS total_amount, COALESCE(MAX(currency), 'USD') AS currency
+           FROM cost_snapshots
+           WHERE workspace_id = $1
+             AND usage_date BETWEEN $2 AND $3
+             AND aws_account_id = $4::uuid
+           GROUP BY usage_date
+           ORDER BY usage_date ASC`,
+          [workspaceId, input.from, input.to, input.awsAccountId],
+        )
+      : await pool.query(
+          `SELECT usage_date, SUM(total_amount) AS total_amount, COALESCE(MAX(currency), 'USD') AS currency
+           FROM workspace_cost_daily_rollups
+           WHERE workspace_id = $1
+             AND usage_date BETWEEN $2 AND $3
+           GROUP BY usage_date
+           ORDER BY usage_date ASC`,
+          [workspaceId, input.from, input.to],
+        );
 
     return result.rows.map((row) => ({
       usageDate: String(row.usage_date).slice(0, 10),

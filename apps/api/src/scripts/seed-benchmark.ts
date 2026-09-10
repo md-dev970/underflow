@@ -1,5 +1,6 @@
 const BENCHMARK_GUARD = "ALLOW_BENCHMARK_SEED";
 const EXPECTED_COST_SNAPSHOTS = 3_650_000;
+const EXPECTED_COST_ROLLUPS = 182_500;
 
 const assertBenchmarkGuard = (): void => {
   if (process.env[BENCHMARK_GUARD] !== "true") {
@@ -153,6 +154,17 @@ const run = async (): Promise<void> => {
        CROSS JOIN generate_series(1, 50) AS service_number`,
     );
 
+    await client.query(
+      `INSERT INTO workspace_cost_daily_rollups (
+         workspace_id, usage_date, service_name, total_amount, currency, updated_at
+       )
+       SELECT workspace_id, usage_date, service_name, SUM(amount), MAX(currency), NOW()
+       FROM cost_snapshots
+       WHERE workspace_id = ANY($1::uuid[])
+       GROUP BY workspace_id, usage_date, service_name`,
+      [workspaceIds],
+    );
+
     const countsResult = await client.query<{
       users: string;
       workspaces: string;
@@ -160,6 +172,7 @@ const run = async (): Promise<void> => {
       aws_accounts: string;
       cost_sync_runs: string;
       cost_snapshots: string;
+      cost_rollups: string;
     }>(
       `SELECT
          (SELECT COUNT(*) FROM users WHERE id = ANY($1::uuid[])) AS users,
@@ -169,7 +182,8 @@ const run = async (): Promise<void> => {
          (SELECT COUNT(*) FROM cost_sync_runs csr
             JOIN aws_accounts aa ON aa.id = csr.aws_account_id
            WHERE aa.workspace_id = ANY($2::uuid[])) AS cost_sync_runs,
-         (SELECT COUNT(*) FROM cost_snapshots WHERE workspace_id = ANY($2::uuid[])) AS cost_snapshots`,
+         (SELECT COUNT(*) FROM cost_snapshots WHERE workspace_id = ANY($2::uuid[])) AS cost_snapshots,
+         (SELECT COUNT(*) FROM workspace_cost_daily_rollups WHERE workspace_id = ANY($2::uuid[])) AS cost_rollups`,
       [userIds, workspaceIds],
     );
 
@@ -181,6 +195,7 @@ const run = async (): Promise<void> => {
       awsAccounts: Number(row?.aws_accounts ?? 0),
       costSyncRuns: Number(row?.cost_sync_runs ?? 0),
       costSnapshots: Number(row?.cost_snapshots ?? 0),
+      costRollups: Number(row?.cost_rollups ?? 0),
     };
 
     if (
@@ -189,13 +204,14 @@ const run = async (): Promise<void> => {
       counts.workspaceMembers !== 10 ||
       counts.awsAccounts !== 200 ||
       counts.costSyncRuns !== 200 ||
-      counts.costSnapshots !== EXPECTED_COST_SNAPSHOTS
+      counts.costSnapshots !== EXPECTED_COST_SNAPSHOTS ||
+      counts.costRollups !== EXPECTED_COST_ROLLUPS
     ) {
       throw new Error(`Unexpected benchmark row counts: ${JSON.stringify(counts)}`);
     }
 
     await client.query(
-      "ANALYZE users, workspaces, workspace_members, aws_accounts, cost_sync_runs, cost_snapshots",
+      "ANALYZE users, workspaces, workspace_members, aws_accounts, cost_sync_runs, cost_snapshots, workspace_cost_daily_rollups",
     );
     await client.query("COMMIT");
 

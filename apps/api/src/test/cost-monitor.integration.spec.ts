@@ -77,6 +77,7 @@ const truncateTables = async (): Promise<void> => {
       notification_deliveries,
       alert_events,
       budget_alerts,
+      workspace_cost_daily_rollups,
       cost_snapshots,
       cost_sync_runs,
       aws_accounts,
@@ -171,6 +172,24 @@ test("workspace, aws account, sync, reporting, and alerts work together against 
     assert.equal(summaryResponse.status, 200);
     assert.equal(summaryResponse.body.summary.totalAmount, 120);
 
+    const rollupResult = await pool.query(
+      `SELECT COUNT(*) AS count, SUM(total_amount) AS total_amount
+       FROM workspace_cost_daily_rollups
+       WHERE workspace_id = $1`,
+      [workspaceId],
+    );
+    assert.equal(Number(rollupResult.rows[0]?.count ?? 0), 3);
+    assert.equal(Number(rollupResult.rows[0]?.total_amount ?? 0), 120);
+
+    const accountSummaryResponse = await request(app)
+      .get(
+        `/api/v1/workspaces/${workspaceId}/costs/summary?from=${dayOne}&to=${dayThree}&awsAccountId=${awsAccountId}`,
+      )
+      .set("Authorization", `Bearer ${accessToken}`);
+
+    assert.equal(accountSummaryResponse.status, 200);
+    assert.equal(accountSummaryResponse.body.summary.totalAmount, 120);
+
     const byServiceResponse = await request(app)
       .get(`/api/v1/workspaces/${workspaceId}/costs/by-service?from=${dayOne}&to=${dayThree}`)
       .set("Authorization", `Bearer ${accessToken}`);
@@ -199,6 +218,24 @@ test("workspace, aws account, sync, reporting, and alerts work together against 
 
     assert.equal(Number(alertEventsResult.rows[0]?.count ?? 0), 1);
     assert.equal(Number(deliveriesResult.rows[0]?.count ?? 0), 1);
+
+    costExplorerService.fetchCostData = async () => [];
+    const emptyReplacementResponse = await request(app)
+      .post(`/api/v1/aws-accounts/${awsAccountId}/sync`)
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({ from: dayOne, to: dayThree });
+
+    assert.equal(emptyReplacementResponse.status, 200);
+    assert.equal(emptyReplacementResponse.body.recordsSynced, 0);
+
+    const replacedCounts = await pool.query(
+      `SELECT
+         (SELECT COUNT(*) FROM cost_snapshots WHERE workspace_id = $1) AS snapshots,
+         (SELECT COUNT(*) FROM workspace_cost_daily_rollups WHERE workspace_id = $1) AS rollups`,
+      [workspaceId],
+    );
+    assert.equal(Number(replacedCounts.rows[0]?.snapshots ?? 0), 0);
+    assert.equal(Number(replacedCounts.rows[0]?.rollups ?? 0), 0);
   } finally {
     costExplorerService.fetchCostData = originalFetch;
   }

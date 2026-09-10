@@ -134,11 +134,20 @@ Both commands launch one-off Fargate tasks from the deployed API task definition
 export BENCHMARK_RESULTS_DIR="$RESULTS_DIR"
 "$REPO_ROOT/benchmarks/underflow-api/scripts/run-one-off-task.sh" migrate
 "$REPO_ROOT/benchmarks/underflow-api/scripts/run-one-off-task.sh" seed
-jq -e '.users == 10 and .workspaces == 10 and .awsAccounts == 200 and .costSnapshots == 3650000' \
+jq -e '.users == 10 and .workspaces == 10 and .awsAccounts == 200 and .costSnapshots == 3650000 and .costRollups == 182500' \
   "$RESULTS_DIR/dataset.json"
 ```
 
-The seeder requires `ALLOW_BENCHMARK_SEED=true`, uses only reserved UUIDs and `example.invalid` identities, bulk-loads with PostgreSQL set operations, replaces only its fixed dataset, verifies exact counts, and runs `ANALYZE`. The generated password is never logged. The first identity is `benchmark+01@example.invalid`, and its workspace is `20000000-0000-4000-8000-000000000001`.
+The seeder requires `ALLOW_BENCHMARK_SEED=true`, uses only reserved UUIDs and `example.invalid` identities, bulk-loads with PostgreSQL set operations, replaces only its fixed dataset, verifies exact counts, builds 182,500 workspace/date/service rollups from the 3,650,000 raw snapshots, and runs `ANALYZE`. The generated password is never logged. The first identity is `benchmark+01@example.invalid`, and its workspace is `20000000-0000-4000-8000-000000000001`.
+
+After deploying the rollup migration over an already-seeded benchmark database, backfill without reseeding the raw dataset:
+
+```bash
+export BENCHMARK_RESULTS_DIR="$RESULTS_DIR"
+"$REPO_ROOT/benchmarks/underflow-api/scripts/run-one-off-task.sh" rollup
+```
+
+The guarded backfill rebuilds all rollups transactionally and records its sanitized output in `rollup-task.log`. Normal synchronization refreshes only the affected workspace/date range under a workspace-scoped transaction lock. Workspace-wide summary, timeseries, and by-service reads use rollups; account-filtered reads continue to use raw snapshots.
 
 To capture a baseline PostgreSQL execution plan for the full-year cost-summary query without exposing RDS publicly, run the diagnostic one-off task and preserve its sanitized output:
 
