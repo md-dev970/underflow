@@ -141,7 +141,7 @@ export BENCHMARK_RESULTS_DIR="$RESULTS_DIR"
 "$REPO_ROOT/benchmarks/underflow-api/scripts/run-one-off-task.sh" explain
 ```
 
-The resulting `explain-task.log` contains `EXPLAIN (ANALYZE, BUFFERS, SETTINGS, FORMAT JSON)` plus sanitized `cost_snapshots` table/index size and scan counters. Capture this baseline before adding an index or changing the query.
+The resulting `explain-task.log` contains `EXPLAIN (ANALYZE, BUFFERS, SETTINGS, FORMAT JSON)` for summary, timeseries, and by-service queries, plus sanitized `cost_snapshots` table/index size and scan counters. Capture this baseline before adding an index or changing a query.
 
 ## Preflight and k6 execution
 

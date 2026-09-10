@@ -105,7 +105,10 @@ const requestDefinitions = [
 ];
 
 const chooseRequest = () => {
-  const bucket = exec.scenario.iterationInTest % 100;
+  // Multiplication by a value coprime to 100 deterministically spreads short
+  // runs across the complete weighted distribution instead of exhausting each
+  // endpoint's contiguous bucket in order.
+  const bucket = (exec.scenario.iterationInTest * 37) % 100;
   return requestDefinitions.find((definition) => bucket < definition.upperBound);
 };
 

@@ -36,14 +36,31 @@ elif [[ "$MODE" == "seed" ]]; then
 else
   EXPLAIN_SCRIPT='import { pool } from "./dist/config/db.js";
 const workspaceId = "20000000-0000-4000-8000-000000000001";
-const explain = await pool.query(`EXPLAIN (ANALYZE, BUFFERS, SETTINGS, FORMAT JSON)
-  SELECT COALESCE(SUM(amount), 0) AS total_amount,
-         COALESCE(MAX(currency), '\''USD'\'') AS currency
-  FROM cost_snapshots
-  WHERE workspace_id = $1
-    AND usage_date BETWEEN $2 AND $3
-    AND ($4::uuid IS NULL OR aws_account_id = $4::uuid)`,
-  [workspaceId, "2025-01-01", "2025-12-31", null]);
+const parameters = [workspaceId, "2025-01-01", "2025-12-31", null];
+const queries = {
+  summary: `SELECT COALESCE(SUM(amount), 0) AS total_amount,
+    COALESCE(MAX(currency), '\''USD'\'') AS currency
+    FROM cost_snapshots
+    WHERE workspace_id = $1 AND usage_date BETWEEN $2 AND $3
+      AND ($4::uuid IS NULL OR aws_account_id = $4::uuid)`,
+  timeseries: `SELECT usage_date, SUM(amount) AS total_amount,
+    COALESCE(MAX(currency), '\''USD'\'') AS currency
+    FROM cost_snapshots
+    WHERE workspace_id = $1 AND usage_date BETWEEN $2 AND $3
+      AND ($4::uuid IS NULL OR aws_account_id = $4::uuid)
+    GROUP BY usage_date ORDER BY usage_date ASC`,
+  byService: `SELECT service_name, SUM(amount) AS total_amount,
+    COALESCE(MAX(currency), '\''USD'\'') AS currency
+    FROM cost_snapshots
+    WHERE workspace_id = $1 AND usage_date BETWEEN $2 AND $3
+      AND ($4::uuid IS NULL OR aws_account_id = $4::uuid)
+    GROUP BY service_name ORDER BY total_amount DESC`,
+};
+const plans = {};
+for (const [name, sql] of Object.entries(queries)) {
+  const result = await pool.query(`EXPLAIN (ANALYZE, BUFFERS, SETTINGS, FORMAT JSON) ${sql}`, parameters);
+  plans[name] = result.rows[0]["QUERY PLAN"];
+}
 const stats = await pool.query(`SELECT
   pg_size_pretty(pg_total_relation_size('\''cost_snapshots'\'')) AS total_size,
   pg_size_pretty(pg_relation_size('\''cost_snapshots'\'')) AS table_size,
@@ -51,7 +68,7 @@ const stats = await pool.query(`SELECT
   n_live_tup, seq_scan, idx_scan
   FROM pg_stat_user_tables
   WHERE relname = '\''cost_snapshots'\''`);
-console.log(JSON.stringify({ benchmarkDiagnostic: true, stats: stats.rows[0], plan: explain.rows[0]["QUERY PLAN"] }, null, 2));
+console.log(JSON.stringify({ benchmarkDiagnostic: true, stats: stats.rows[0], plans }, null, 2));
 await pool.end();'
   COMMAND_JSON="$(jq -cn --arg script "$EXPLAIN_SCRIPT" '["node","--input-type=module","--eval",$script]')"
   ENVIRONMENT_JSON='[]'
