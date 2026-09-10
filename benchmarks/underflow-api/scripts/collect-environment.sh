@@ -52,6 +52,7 @@ jq -n \
     dataset: "underflow-api-benchmark-v1",
     profiles: {
       smoke: {vus: 2, duration: "30s"},
+      capacityDiscovery: {levels: [2,3,4,5], durationPerLevel: "3m"},
       normalLoad: {stages: [["1m",25],["3m",25],["1m",50],["5m",50],["2m",100],["5m",100],["1m",0]]},
       stress: {stages: [["2m",100],["3m",100],["1m",150],["3m",150],["1m",200],["3m",200],["1m",0]]}
     }

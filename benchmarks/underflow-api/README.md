@@ -86,6 +86,12 @@ terraform -chdir="$TF_ROOT" show -json tfplan | jq -r \
 
 The review must show only this root's benchmark resources, the benchmark prefix on every name-capable AWS resource, the four tags on every tag-capable resource, non-public RDS, ECS port 3080 ingress only from the ALB security group, ALB port 80 ingress only from `load_test_cidr`, and none of the excluded service types. Terraform state must be local to this root.
 
+If the native load generator's public IP changes after deployment, update only the ALB ingress rule and verify health with the guarded helper. It refuses to apply a plan that changes any managed resource other than `aws_security_group.alb`:
+
+```bash
+bash "$REPO_ROOT/benchmarks/underflow-api/scripts/update-load-test-ip.sh"
+```
+
 ## Bootstrap ECR, build, and deploy
 
 The reviewed configuration is applied first to only its disposable ECR resource so the immutable image exists before ECS starts. This target is in the isolated benchmark root; it does not address any existing Underflow resource.
@@ -174,7 +180,37 @@ k6 run "$REPO_ROOT/benchmarks/underflow-api/k6/load.js"
 export LOAD_END="$(date -u +%FT%TZ)"
 ```
 
-The scripts use deterministic iteration buckets for the 30/30/25/10/5 distribution, validate status, JSON, response shape, and authorization/server errors, and save compact summaries through `handleSummary`. Overall measured thresholds are failure rate `<1%`, p95 `<200 ms`, p99 `<500 ms`, and checks `>99%`; per-endpoint p95/p99 values are retained. Login is tagged as setup and excluded from `measured_*` metrics.
+The scripts use deterministic iteration buckets for the 30/30/25/10/5 distribution, validate status, JSON, response shape, and authorization/server errors, and save compact summaries through `handleSummary`. k6 retains the client-observed failure rate `<1%`, p95 `<200 ms`, p99 `<500 ms`, and checks `>99%` thresholds; per-endpoint values are retained. Because a developer-machine run includes location-dependent Internet transit, the primary backend latency reported by this benchmark is the ALB `TargetResponseTime` p50/p90/p95/p99 collected from CloudWatch. Client-observed k6 latency remains evidence and must be labeled with the load-generator location rather than relabeled or discarded. Login is tagged as setup and excluded from `measured_*` metrics.
+
+### Capacity discovery on the baseline database class
+
+When the normal profile saturates the documented `db.t4g.micro`, preserve that failed run and determine the configuration's actual capacity with independent constant-load levels. Test 2, 3, 4, and 5 VUs, stopping once a level fails or once the first failing level above the highest passing level is established. A passing level has no functional failures and every one-minute ALB `TargetResponseTime` p95 below 200 ms and p99 below 500 ms. Refresh the ALB ingress CIDR before each level; never update it during a measured interval.
+
+For each level, run the following block after setting `CAPACITY_VUS` to 2, 3, 4, or 5:
+
+```bash
+bash "$REPO_ROOT/benchmarks/underflow-api/scripts/update-load-test-ip.sh"
+export CAPACITY_VUS=5
+export CAPACITY_START="$(date -u +%FT%TZ)"
+CAPACITY_VUS="$CAPACITY_VUS" CAPACITY_DURATION=3m \
+  k6 run "$REPO_ROOT/benchmarks/underflow-api/k6/capacity.js"
+export CAPACITY_END="$(date -u +%FT%TZ)"
+
+# Allow one-minute CloudWatch statistics to become available.
+sleep 120
+
+AWS_REGION="$AWS_REGION" \
+ECS_CLUSTER="$(terraform -chdir="$TF_ROOT" output -raw ecs_cluster_name | tr -d '\r')" \
+ECS_SERVICE="$(terraform -chdir="$TF_ROOT" output -raw ecs_service_name | tr -d '\r')" \
+RDS_IDENTIFIER="$(terraform -chdir="$TF_ROOT" output -raw rds_identifier | tr -d '\r')" \
+ALB_ARN_SUFFIX="$(terraform -chdir="$TF_ROOT" output -raw load_balancer_arn_suffix | tr -d '\r')" \
+TARGET_GROUP_ARN_SUFFIX="$(terraform -chdir="$TF_ROOT" output -raw target_group_arn_suffix | tr -d '\r')" \
+START_TIME="$CAPACITY_START" END_TIME="$CAPACITY_END" \
+OUTPUT_FILE="$RESULTS_DIR/capacity-${CAPACITY_VUS}vus-cloudwatch.json" \
+  "$REPO_ROOT/benchmarks/underflow-api/scripts/collect-aws-metadata.sh"
+```
+
+The k6 summary is saved as `capacity-<N>vus-summary.json`. A run aborted for network failures is invalid, must be preserved as such, and cannot establish capacity. The supported level is the highest fully valid level whose server-side threshold passes; do not interpolate or claim the next failing level.
 
 Run stress only when the normal profile completes, thresholds are reviewed, the service remains healthy, and the load generator is not saturated:
 
@@ -188,7 +224,7 @@ Stress aborts after a sustained measured failure rate above 5%. Treat its breaki
 
 ## Collect CloudWatch evidence and generate results
 
-Collect metrics immediately after each measured interval (use distinct output names if collecting smoke and stress separately). The required final `cloudwatch-summary.json` should cover normal load.
+Collect metrics immediately after each measured interval (use distinct output names if collecting smoke and stress separately). The required final `cloudwatch-summary.json` should cover normal load. ALB target-response datapoints contain server-side p50, p90, p95, and p99 extended statistics for each 60-second period; do not describe these as end-to-end client latency.
 
 ```bash
 AWS_REGION="$AWS_REGION" \

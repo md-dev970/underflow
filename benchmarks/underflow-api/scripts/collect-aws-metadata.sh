@@ -36,13 +36,28 @@ collect_metric() {
     --output json > "$TMP_DIR/$key.json"
 }
 
+collect_percentile_metric() {
+  local key="$1" namespace="$2" metric="$3"
+  shift 3
+  aws cloudwatch get-metric-statistics \
+    --region "$AWS_REGION" \
+    --namespace "$namespace" \
+    --metric-name "$metric" \
+    --dimensions "$@" \
+    --start-time "$START_TIME" \
+    --end-time "$END_TIME" \
+    --period 60 \
+    --extended-statistics p50 p90 p95 p99 \
+    --output json > "$TMP_DIR/$key.json"
+}
+
 collect_metric ecs_cpu AWS/ECS CPUUtilization Average \
   Name=ClusterName,Value="$ECS_CLUSTER" Name=ServiceName,Value="$ECS_SERVICE"
 collect_metric ecs_memory AWS/ECS MemoryUtilization Average \
   Name=ClusterName,Value="$ECS_CLUSTER" Name=ServiceName,Value="$ECS_SERVICE"
 collect_metric ecs_running_tasks ECS/ContainerInsights RunningTaskCount Average \
   Name=ClusterName,Value="$ECS_CLUSTER" Name=ServiceName,Value="$ECS_SERVICE"
-collect_metric alb_target_response AWS/ApplicationELB TargetResponseTime Average \
+collect_percentile_metric alb_target_response AWS/ApplicationELB TargetResponseTime \
   Name=LoadBalancer,Value="$ALB_ARN_SUFFIX" Name=TargetGroup,Value="$TARGET_GROUP_ARN_SUFFIX"
 collect_metric alb_4xx AWS/ApplicationELB HTTPCode_ELB_4XX_Count Sum \
   Name=LoadBalancer,Value="$ALB_ARN_SUFFIX"
