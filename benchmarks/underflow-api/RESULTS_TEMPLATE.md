@@ -24,7 +24,7 @@ See `dataset.json` for exact verified counts.
 
 ## Thresholds
 
-Measured failure rate `< 1%`, measured request latency p95 `< 200 ms`, p99 `< 500 ms`, and checks pass rate `> 99%`.
+Measured failure rate `< 1%` and checks pass rate `> 99%`. For every one-minute CloudWatch datapoint, ALB server-side `TargetResponseTime` p50 `< 30 ms`, p95 `< 100 ms`, and p99 `< 250 ms`. Client-observed latency is retained as diagnostic evidence and is not used for backend acceptance.
 
 ## Results
 

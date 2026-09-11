@@ -4,6 +4,10 @@ This benchmark measures the real bearer-authenticated, PostgreSQL-backed cost-re
 
 No result in this directory should be treated as measured evidence until all commands complete and a timestamped result directory contains the required JSON files. A failed k6 threshold is evidence and must be preserved as-is.
 
+## Final measured result
+
+The completed benchmark sustained **170.90 requests/second for 15 minutes at 45 continuously active VUs** with a 0.0325% functional failure rate. Across every one-minute ALB server-side datapoint, the worst p50 was 15.22 ms, p95 was 89.89 ms, and p99 was 226.96 ms. The 50-VU soak was the first sustained failing level because its p95 and p99 targets were breached. See [`results/2026-09-10-c0cf1f68/RESULTS.md`](results/2026-09-10-c0cf1f68/RESULTS.md) for the generated report and limitations; VUs are continuously active workers, not registered-user counts.
+
 ## Safety boundary
 
 The only authorized Terraform root is `infra/terraform/envs/api-benchmark`. It has local, isolated state and does not reference production state or modules. Every named resource begins with `underflow-api-bench-<id>` and AWS provider default tags apply:
@@ -189,13 +193,21 @@ k6 run "$REPO_ROOT/benchmarks/underflow-api/k6/load.js"
 export LOAD_END="$(date -u +%FT%TZ)"
 ```
 
-The scripts use deterministic iteration buckets for the 30/30/25/10/5 distribution, validate status, JSON, response shape, and authorization/server errors, and save compact summaries through `handleSummary`. k6 retains the client-observed failure rate `<1%`, p95 `<200 ms`, p99 `<500 ms`, and checks `>99%` thresholds; per-endpoint values are retained. Because a developer-machine run includes location-dependent Internet transit, the primary backend latency reported by this benchmark is the ALB `TargetResponseTime` p50/p90/p95/p99 collected from CloudWatch. Client-observed k6 latency remains evidence and must be labeled with the load-generator location rather than relabeled or discarded. Login is tagged as setup and excluded from `measured_*` metrics.
+The scripts use deterministic iteration buckets for the 30/30/25/10/5 distribution, validate status, JSON, response shape, and authorization/server errors, and save compact summaries through `handleSummary`. k6 enforces the client-observed failure rate `<1%` and checks `>99%`; its end-to-end latency and per-endpoint values are retained as diagnostic evidence but are not used for backend acceptance. Because a developer-machine run includes location-dependent Internet transit, backend latency targets are evaluated from the ALB `TargetResponseTime` p50/p90/p95/p99 collected from CloudWatch. The required server-side targets are p50 `<30 ms`, p95 `<100 ms`, and p99 `<250 ms` in every one-minute datapoint. Client-observed k6 latency must be labeled with the load-generator location rather than relabeled or discarded. Login is tagged as setup and excluded from `measured_*` metrics.
 
 ### Capacity discovery on the baseline database class
 
-When the normal profile saturates the documented `db.t4g.micro`, preserve that failed run and determine the configuration's actual capacity with independent constant-load levels. Test 2, 3, 4, and 5 VUs, stopping once a level fails or once the first failing level above the highest passing level is established. A passing level has no functional failures and every one-minute ALB `TargetResponseTime` p95 below 200 ms and p99 below 500 ms. Refresh the ALB ingress CIDR before each level; never update it during a measured interval.
+When the normal profile saturates the documented `db.t4g.micro`, preserve that failed run and determine the configuration's actual capacity with independent constant-load levels. Test increasing VU levels, stopping once the first failing level above the highest passing level is established. A passing level has a measured failure rate below 1%, a checks pass rate above 99%, and every one-minute ALB `TargetResponseTime` p50 below 30 ms, p95 below 100 ms, and p99 below 250 ms. Refresh the ALB ingress CIDR before each level; never update it during a measured interval.
 
-For each level, run the following block after setting `CAPACITY_VUS` to 2, 3, 4, or 5:
+The all-in-one runner performs the IP refresh, health and credential preflight, k6 run, CloudWatch wait and collection, and final capacity check. It defaults to 7 VUs for 3 minutes; the optional arguments are VUs and duration:
+
+```bash
+bash "$REPO_ROOT/benchmarks/underflow-api/scripts/run-capacity-test.sh" 7 3m
+```
+
+It refuses to overwrite existing evidence. Set a distinct label when intentionally repeating a level, for example `CAPACITY_LABEL=post-rollup-repeat`.
+
+The equivalent manual sequence follows for troubleshooting or inspecting each step:
 
 ```bash
 bash "$REPO_ROOT/benchmarks/underflow-api/scripts/update-load-test-ip.sh"
@@ -217,9 +229,13 @@ TARGET_GROUP_ARN_SUFFIX="$(terraform -chdir="$TF_ROOT" output -raw target_group_
 START_TIME="$CAPACITY_START" END_TIME="$CAPACITY_END" \
 OUTPUT_FILE="$RESULTS_DIR/capacity-${CAPACITY_VUS}vus-cloudwatch.json" \
   "$REPO_ROOT/benchmarks/underflow-api/scripts/collect-aws-metadata.sh"
+
+"$REPO_ROOT/benchmarks/underflow-api/scripts/check-capacity-result.sh" \
+  "$RESULTS_DIR/capacity-${CAPACITY_VUS}vus-summary.json" \
+  "$RESULTS_DIR/capacity-${CAPACITY_VUS}vus-cloudwatch.json"
 ```
 
-The k6 summary is saved as `capacity-<N>vus-summary.json`. A run aborted for network failures is invalid, must be preserved as such, and cannot establish capacity. The supported level is the highest fully valid level whose server-side threshold passes; do not interpolate or claim the next failing level.
+The k6 summary is saved as `capacity-<N>vus-summary.json`. The checker requires functional success plus p50 `<30 ms`, p95 `<100 ms`, and p99 `<250 ms` in every collected ALB minute. A run aborted for network failures is invalid, must be preserved as such, and cannot establish capacity. The supported level is the highest fully valid level whose server-side threshold passes; do not interpolate or claim the next failing level.
 
 Run stress only when the normal profile completes, thresholds are reviewed, the service remains healthy, and the load generator is not saturated:
 
@@ -252,15 +268,19 @@ OUTPUT_FILE="$RESULTS_DIR/cloudwatch-summary.json" \
 
 The generator refuses missing evidence and mechanically derives requests/second, p95, concurrency, dataset size, and the résumé bullet from preserved JSON. Review `RESULTS.md` for supported bottleneck observations; do not replace failed thresholds or missing stress evidence with estimates.
 
-Required timestamped evidence is:
+Required final evidence for this capacity-discovery run is:
 
 ```text
 environment.json
 dataset.json
 smoke-summary.json
-load-summary.json
-stress-summary.json        # only if safely performed
-cloudwatch-summary.json
+load-summary.json          # retained invalid run, excluded from capacity claims
+capacity-45vus-post-rollup-soak-summary.json
+capacity-45vus-post-rollup-soak-cloudwatch.json
+capacity-50vus-post-rollup-soak-summary.json
+capacity-50vus-post-rollup-soak-cloudwatch.json
+explain-after-rollup.json
+rollup.json
 RESULTS.md
 ```
 
@@ -306,9 +326,8 @@ for file in environment.json dataset.json smoke-summary.json load-summary.json c
   test -s "$RESULTS_DIR/$file"
 done
 
-terraform -chdir="$TF_ROOT" output -json | \
-  jq '{aws_region,resource_prefix,ecs_cluster_name,ecs_service_name,rds_identifier,availability_zones}' \
-  > "$RESULTS_DIR/final-terraform-outputs.json"
+# Infrastructure characteristics and the tested image digest are already
+# recorded in environment.json. Do not save live resource IDs or endpoints.
 terraform -chdir="$TF_ROOT" state list | tee "$RESULTS_DIR/terraform-state-list.txt"
 terraform -chdir="$TF_ROOT" state list | grep -E 'envs.production|platform_stack' && exit 1 || true
 

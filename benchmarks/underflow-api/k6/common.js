@@ -32,13 +32,7 @@ export const standardThresholds = (failureThreshold = "rate<0.01", abortOnFailur
   measured_failures: abortOnFailure
     ? [{ threshold: failureThreshold, abortOnFail: true, delayAbortEval: "30s" }]
     : [failureThreshold],
-  measured_duration: ["p(95)<200", "p(99)<500"],
   checks: ["rate>0.99"],
-  endpoint_cost_summary_duration: ["p(95)<200", "p(99)<500"],
-  endpoint_cost_timeseries_duration: ["p(95)<200", "p(99)<500"],
-  endpoint_cost_by_service_duration: ["p(95)<200", "p(99)<500"],
-  endpoint_aws_account_list_duration: ["p(95)<200", "p(99)<500"],
-  endpoint_sync_history_duration: ["p(95)<200", "p(99)<500"],
 });
 
 export const authenticate = () => {
@@ -154,8 +148,10 @@ export const runMeasuredRequest = (data) => {
 export const writeSummary = (data, defaultName) => {
   const resultsDirectory = (__ENV.RESULTS_DIR ?? "results").replace(/[\\/]$/, "");
   const summaryName = __ENV.SUMMARY_NAME ?? defaultName;
+  const sanitizedData = { ...data };
+  delete sanitizedData.setup_data;
   return {
-    [`${resultsDirectory}/${summaryName}`]: JSON.stringify(data, null, 2),
+    [`${resultsDirectory}/${summaryName}`]: JSON.stringify(sanitizedData, null, 2),
     stdout: `Saved compact k6 summary to ${resultsDirectory}/${summaryName}\n`,
   };
 };
