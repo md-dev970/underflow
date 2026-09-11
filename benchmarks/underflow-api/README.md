@@ -8,6 +8,8 @@ No result in this directory should be treated as measured evidence until all com
 
 The completed benchmark sustained **170.90 requests/second for 15 minutes at 45 continuously active VUs** with a 0.0325% functional failure rate. Across every one-minute ALB server-side datapoint, the worst p50 was 15.22 ms, p95 was 89.89 ms, and p99 was 226.96 ms. The 50-VU soak was the first sustained failing level because its p95 and p99 targets were breached. See [`results/2026-09-10-c0cf1f68/RESULTS.md`](results/2026-09-10-c0cf1f68/RESULTS.md) for the generated report and limitations; VUs are continuously active workers, not registered-user counts.
 
+The disposable stack was destroyed on 2026-09-11. Terraform state and independent AWS inventory checks both reported zero remaining benchmark resources; the sanitized verification record is stored with the result evidence.
+
 ## Safety boundary
 
 The only authorized Terraform root is `infra/terraform/envs/api-benchmark`. It has local, isolated state and does not reference production state or modules. Every named resource begins with `underflow-api-bench-<id>` and AWS provider default tags apply:
