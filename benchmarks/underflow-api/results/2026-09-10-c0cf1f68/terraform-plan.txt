@@ -1,0 +1,995 @@
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+ <= read (data resources)
+
+Terraform will perform the following actions:
+
+  # data.aws_iam_policy_document.task_execution_secrets will be read during apply
+  # (config refers to values not yet known)
+ <= data "aws_iam_policy_document" "task_execution_secrets" {
+      + id            = (known after apply)
+      + json          = (known after apply)
+      + minified_json = (known after apply)
+
+      + statement {
+          + actions   = [
+              + "secretsmanager:GetSecretValue",
+            ]
+          + resources = [
+              + (known after apply),
+            ]
+          + sid       = "ReadBenchmarkRuntimeSecret"
+        }
+    }
+
+  # aws_cloudwatch_log_group.api will be created
+  + resource "aws_cloudwatch_log_group" "api" {
+      + arn                         = (known after apply)
+      + deletion_protection_enabled = (known after apply)
+      + id                          = (known after apply)
+      + log_group_class             = (known after apply)
+      + name                        = "/ecs/underflow-api-bench-c0cf1f68/api"
+      + name_prefix                 = (known after apply)
+      + region                      = "us-east-1"
+      + retention_in_days           = 3
+      + skip_destroy                = false
+      + tags                        = {
+          + "Name" = "underflow-api-bench-c0cf1f68-api-logs"
+        }
+      + tags_all                    = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-api-logs"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+    }
+
+  # aws_db_instance.postgres will be created
+  + resource "aws_db_instance" "postgres" {
+      + address                               = (known after apply)
+      + allocated_storage                     = 20
+      + apply_immediately                     = true
+      + arn                                   = (known after apply)
+      + auto_minor_version_upgrade            = true
+      + availability_zone                     = (known after apply)
+      + backup_retention_period               = 0
+      + backup_target                         = (known after apply)
+      + backup_window                         = (known after apply)
+      + ca_cert_identifier                    = (known after apply)
+      + character_set_name                    = (known after apply)
+      + copy_tags_to_snapshot                 = false
+      + database_insights_mode                = (known after apply)
+      + db_name                               = "underflow_benchmark"
+      + db_subnet_group_name                  = "underflow-api-bench-c0cf1f68-db-subnets"
+      + dedicated_log_volume                  = false
+      + delete_automated_backups              = true
+      + deletion_protection                   = false
+      + domain_fqdn                           = (known after apply)
+      + endpoint                              = (known after apply)
+      + engine                                = "postgres"
+      + engine_lifecycle_support              = (known after apply)
+      + engine_version                        = "16.13"
+      + engine_version_actual                 = (known after apply)
+      + hosted_zone_id                        = (known after apply)
+      + id                                    = (known after apply)
+      + identifier                            = "underflow-api-bench-c0cf1f68-postgres"
+      + identifier_prefix                     = (known after apply)
+      + instance_class                        = "db.t4g.micro"
+      + iops                                  = (known after apply)
+      + kms_key_id                            = (known after apply)
+      + latest_restorable_time                = (known after apply)
+      + license_model                         = (known after apply)
+      + listener_endpoint                     = (known after apply)
+      + maintenance_window                    = (known after apply)
+      + master_user_secret                    = (known after apply)
+      + master_user_secret_kms_key_id         = (known after apply)
+      + monitoring_interval                   = 0
+      + monitoring_role_arn                   = (known after apply)
+      + multi_az                              = false
+      + nchar_character_set_name              = (known after apply)
+      + network_type                          = (known after apply)
+      + option_group_name                     = (known after apply)
+      + parameter_group_name                  = (known after apply)
+      + password                              = (sensitive value)
+      + password_wo                           = (write-only attribute)
+      + performance_insights_enabled          = false
+      + performance_insights_kms_key_id       = (known after apply)
+      + performance_insights_retention_period = (known after apply)
+      + port                                  = 5432
+      + publicly_accessible                   = false
+      + region                                = "us-east-1"
+      + replica_mode                          = (known after apply)
+      + replicas                              = (known after apply)
+      + resource_id                           = (known after apply)
+      + skip_final_snapshot                   = true
+      + snapshot_identifier                   = (known after apply)
+      + status                                = (known after apply)
+      + storage_encrypted                     = true
+      + storage_throughput                    = (known after apply)
+      + storage_type                          = "gp3"
+      + tags                                  = {
+          + "Name" = "underflow-api-bench-c0cf1f68-postgres"
+        }
+      + tags_all                              = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-postgres"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+      + timezone                              = (known after apply)
+      + upgrade_rollout_order                 = (known after apply)
+      + username                              = "underflow_benchmark"
+      + vpc_security_group_ids                = (known after apply)
+    }
+
+  # aws_db_subnet_group.benchmark will be created
+  + resource "aws_db_subnet_group" "benchmark" {
+      + arn                     = (known after apply)
+      + description             = "Managed by Terraform"
+      + id                      = (known after apply)
+      + name                    = "underflow-api-bench-c0cf1f68-db-subnets"
+      + name_prefix             = (known after apply)
+      + region                  = "us-east-1"
+      + subnet_ids              = (known after apply)
+      + supported_network_types = (known after apply)
+      + tags                    = {
+          + "Name" = "underflow-api-bench-c0cf1f68-db-subnets"
+        }
+      + tags_all                = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-db-subnets"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+      + vpc_id                  = (known after apply)
+    }
+
+  # aws_ecr_repository.api will be created
+  + resource "aws_ecr_repository" "api" {
+      + arn                  = (known after apply)
+      + force_delete         = true
+      + id                   = (known after apply)
+      + image_tag_mutability = "IMMUTABLE"
+      + name                 = "underflow-api-bench-c0cf1f68-api"
+      + region               = "us-east-1"
+      + registry_id          = (known after apply)
+      + repository_url       = (known after apply)
+      + tags                 = {
+          + "Name" = "underflow-api-bench-c0cf1f68-api"
+        }
+      + tags_all             = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-api"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+
+      + image_scanning_configuration {
+          + scan_on_push = true
+        }
+    }
+
+  # aws_ecs_cluster.benchmark will be created
+  + resource "aws_ecs_cluster" "benchmark" {
+      + arn      = (known after apply)
+      + id       = (known after apply)
+      + name     = "underflow-api-bench-c0cf1f68-cluster"
+      + region   = "us-east-1"
+      + tags     = {
+          + "Name" = "underflow-api-bench-c0cf1f68-cluster"
+        }
+      + tags_all = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-cluster"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+
+      + setting {
+          + name  = "containerInsights"
+          + value = "enabled"
+        }
+    }
+
+  # aws_ecs_service.api will be created
+  + resource "aws_ecs_service" "api" {
+      + arn                                = (known after apply)
+      + availability_zone_rebalancing      = (known after apply)
+      + cluster                            = (known after apply)
+      + deployment_maximum_percent         = 200
+      + deployment_minimum_healthy_percent = 100
+      + desired_count                      = 1
+      + enable_ecs_managed_tags            = false
+      + enable_execute_command             = false
+      + health_check_grace_period_seconds  = 90
+      + iam_role                           = (known after apply)
+      + id                                 = (known after apply)
+      + launch_type                        = "FARGATE"
+      + name                               = "underflow-api-bench-c0cf1f68-api"
+      + platform_version                   = (known after apply)
+      + region                             = "us-east-1"
+      + scheduling_strategy                = "REPLICA"
+      + tags                               = {
+          + "Name" = "underflow-api-bench-c0cf1f68-api"
+        }
+      + tags_all                           = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-api"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+      + task_definition                    = (known after apply)
+      + triggers                           = (known after apply)
+      + wait_for_steady_state              = true
+
+      + deployment_circuit_breaker {
+          + enable   = true
+          + rollback = true
+        }
+
+      + deployment_configuration (known after apply)
+
+      + load_balancer {
+          + container_name   = "api"
+          + container_port   = 3080
+          + target_group_arn = (known after apply)
+            # (1 unchanged attribute hidden)
+        }
+
+      + network_configuration {
+          + assign_public_ip = true
+          + security_groups  = (known after apply)
+          + subnets          = (known after apply)
+        }
+    }
+
+  # aws_ecs_task_definition.api will be created
+  + resource "aws_ecs_task_definition" "api" {
+      + arn                      = (known after apply)
+      + arn_without_revision     = (known after apply)
+      + container_definitions    = (known after apply)
+      + cpu                      = "512"
+      + enable_fault_injection   = (known after apply)
+      + execution_role_arn       = (known after apply)
+      + family                   = "underflow-api-bench-c0cf1f68-api"
+      + id                       = (known after apply)
+      + memory                   = "1024"
+      + network_mode             = "awsvpc"
+      + region                   = "us-east-1"
+      + requires_compatibilities = [
+          + "FARGATE",
+        ]
+      + revision                 = (known after apply)
+      + skip_destroy             = false
+      + tags                     = {
+          + "Name" = "underflow-api-bench-c0cf1f68-api"
+        }
+      + tags_all                 = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-api"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+      + task_role_arn            = (known after apply)
+      + track_latest             = false
+
+      + runtime_platform {
+          + cpu_architecture        = "X86_64"
+          + operating_system_family = "LINUX"
+        }
+    }
+
+  # aws_iam_role.task_execution will be created
+  + resource "aws_iam_role" "task_execution" {
+      + arn                   = (known after apply)
+      + assume_role_policy    = jsonencode(
+            {
+              + Statement = [
+                  + {
+                      + Action    = "sts:AssumeRole"
+                      + Effect    = "Allow"
+                      + Principal = {
+                          + Service = "ecs-tasks.amazonaws.com"
+                        }
+                    },
+                ]
+              + Version   = "2012-10-17"
+            }
+        )
+      + create_date           = (known after apply)
+      + force_detach_policies = false
+      + id                    = (known after apply)
+      + managed_policy_arns   = (known after apply)
+      + max_session_duration  = 3600
+      + name                  = "underflow-api-bench-c0cf1f68-task-execution"
+      + name_prefix           = (known after apply)
+      + path                  = "/"
+      + tags                  = {
+          + "Name" = "underflow-api-bench-c0cf1f68-task-execution"
+        }
+      + tags_all              = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-task-execution"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+      + unique_id             = (known after apply)
+
+      + inline_policy (known after apply)
+    }
+
+  # aws_iam_role.task_runtime will be created
+  + resource "aws_iam_role" "task_runtime" {
+      + arn                   = (known after apply)
+      + assume_role_policy    = jsonencode(
+            {
+              + Statement = [
+                  + {
+                      + Action    = "sts:AssumeRole"
+                      + Effect    = "Allow"
+                      + Principal = {
+                          + Service = "ecs-tasks.amazonaws.com"
+                        }
+                    },
+                ]
+              + Version   = "2012-10-17"
+            }
+        )
+      + create_date           = (known after apply)
+      + force_detach_policies = false
+      + id                    = (known after apply)
+      + managed_policy_arns   = (known after apply)
+      + max_session_duration  = 3600
+      + name                  = "underflow-api-bench-c0cf1f68-task-runtime"
+      + name_prefix           = (known after apply)
+      + path                  = "/"
+      + tags                  = {
+          + "Name" = "underflow-api-bench-c0cf1f68-task-runtime"
+        }
+      + tags_all              = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-task-runtime"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+      + unique_id             = (known after apply)
+
+      + inline_policy (known after apply)
+    }
+
+  # aws_iam_role_policy.task_execution_secrets will be created
+  + resource "aws_iam_role_policy" "task_execution_secrets" {
+      + id          = (known after apply)
+      + name        = "underflow-api-bench-c0cf1f68-read-runtime-secret"
+      + name_prefix = (known after apply)
+      + policy      = (known after apply)
+      + role        = (known after apply)
+    }
+
+  # aws_iam_role_policy_attachment.task_execution will be created
+  + resource "aws_iam_role_policy_attachment" "task_execution" {
+      + id         = (known after apply)
+      + policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+      + role       = "underflow-api-bench-c0cf1f68-task-execution"
+    }
+
+  # aws_internet_gateway.benchmark will be created
+  + resource "aws_internet_gateway" "benchmark" {
+      + arn      = (known after apply)
+      + id       = (known after apply)
+      + owner_id = (known after apply)
+      + region   = "us-east-1"
+      + tags     = {
+          + "Name" = "underflow-api-bench-c0cf1f68-igw"
+        }
+      + tags_all = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-igw"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+      + vpc_id   = (known after apply)
+    }
+
+  # aws_lb.api will be created
+  + resource "aws_lb" "api" {
+      + arn                                                          = (known after apply)
+      + arn_suffix                                                   = (known after apply)
+      + client_keep_alive                                            = 3600
+      + desync_mitigation_mode                                       = "defensive"
+      + dns_name                                                     = (known after apply)
+      + drop_invalid_header_fields                                   = false
+      + enable_deletion_protection                                   = false
+      + enable_http2                                                 = true
+      + enable_prefix_for_ipv6_source_nat                            = (known after apply)
+      + enable_tls_version_and_cipher_suite_headers                  = false
+      + enable_waf_fail_open                                         = false
+      + enable_xff_client_port                                       = false
+      + enable_zonal_shift                                           = false
+      + enforce_security_group_inbound_rules_on_private_link_traffic = (known after apply)
+      + id                                                           = (known after apply)
+      + idle_timeout                                                 = 60
+      + internal                                                     = false
+      + ip_address_type                                              = (known after apply)
+      + load_balancer_type                                           = "application"
+      + name                                                         = "underflow-api-bench-c0cf1f68-alb"
+      + name_prefix                                                  = (known after apply)
+      + preserve_host_header                                         = false
+      + region                                                       = "us-east-1"
+      + secondary_ips_auto_assigned_per_subnet                       = (known after apply)
+      + security_groups                                              = (known after apply)
+      + subnets                                                      = (known after apply)
+      + tags                                                         = {
+          + "Name" = "underflow-api-bench-c0cf1f68-alb"
+        }
+      + tags_all                                                     = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-alb"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+      + vpc_id                                                       = (known after apply)
+      + xff_header_processing_mode                                   = "append"
+      + zone_id                                                      = (known after apply)
+
+      + subnet_mapping (known after apply)
+    }
+
+  # aws_lb_listener.http will be created
+  + resource "aws_lb_listener" "http" {
+      + arn                                                                   = (known after apply)
+      + id                                                                    = (known after apply)
+      + load_balancer_arn                                                     = (known after apply)
+      + port                                                                  = 80
+      + protocol                                                              = "HTTP"
+      + region                                                                = "us-east-1"
+      + routing_http_request_x_amzn_mtls_clientcert_header_name               = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_issuer_header_name        = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_leaf_header_name          = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_serial_number_header_name = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_subject_header_name       = (known after apply)
+      + routing_http_request_x_amzn_mtls_clientcert_validity_header_name      = (known after apply)
+      + routing_http_request_x_amzn_tls_cipher_suite_header_name              = (known after apply)
+      + routing_http_request_x_amzn_tls_version_header_name                   = (known after apply)
+      + routing_http_response_access_control_allow_credentials_header_value   = (known after apply)
+      + routing_http_response_access_control_allow_headers_header_value       = (known after apply)
+      + routing_http_response_access_control_allow_methods_header_value       = (known after apply)
+      + routing_http_response_access_control_allow_origin_header_value        = (known after apply)
+      + routing_http_response_access_control_expose_headers_header_value      = (known after apply)
+      + routing_http_response_access_control_max_age_header_value             = (known after apply)
+      + routing_http_response_content_security_policy_header_value            = (known after apply)
+      + routing_http_response_server_enabled                                  = (known after apply)
+      + routing_http_response_strict_transport_security_header_value          = (known after apply)
+      + routing_http_response_x_content_type_options_header_value             = (known after apply)
+      + routing_http_response_x_frame_options_header_value                    = (known after apply)
+      + ssl_policy                                                            = (known after apply)
+      + tags                                                                  = {
+          + "Name" = "underflow-api-bench-c0cf1f68-http"
+        }
+      + tags_all                                                              = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-http"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+      + tcp_idle_timeout_seconds                                              = (known after apply)
+
+      + default_action {
+          + order            = (known after apply)
+          + target_group_arn = (known after apply)
+          + type             = "forward"
+        }
+
+      + mutual_authentication (known after apply)
+    }
+
+  # aws_lb_target_group.api will be created
+  + resource "aws_lb_target_group" "api" {
+      + arn                                = (known after apply)
+      + arn_suffix                         = (known after apply)
+      + connection_termination             = (known after apply)
+      + deregistration_delay               = "300"
+      + id                                 = (known after apply)
+      + ip_address_type                    = (known after apply)
+      + lambda_multi_value_headers_enabled = false
+      + load_balancer_arns                 = (known after apply)
+      + load_balancing_algorithm_type      = (known after apply)
+      + load_balancing_anomaly_mitigation  = (known after apply)
+      + load_balancing_cross_zone_enabled  = (known after apply)
+      + name                               = "underflow-api-bench-c0cf1f68-tg"
+      + name_prefix                        = (known after apply)
+      + port                               = 3080
+      + preserve_client_ip                 = (known after apply)
+      + protocol                           = "HTTP"
+      + protocol_version                   = (known after apply)
+      + proxy_protocol_v2                  = false
+      + region                             = "us-east-1"
+      + slow_start                         = 0
+      + tags                               = {
+          + "Name" = "underflow-api-bench-c0cf1f68-tg"
+        }
+      + tags_all                           = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-tg"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+      + target_type                        = "ip"
+      + vpc_id                             = (known after apply)
+
+      + health_check {
+          + enabled             = true
+          + healthy_threshold   = 2
+          + interval            = 30
+          + matcher             = "200"
+          + path                = "/api/v1/health"
+          + port                = "traffic-port"
+          + protocol            = "HTTP"
+          + timeout             = 5
+          + unhealthy_threshold = 3
+        }
+
+      + stickiness (known after apply)
+
+      + target_failover (known after apply)
+
+      + target_group_health (known after apply)
+
+      + target_health_state (known after apply)
+    }
+
+  # aws_route_table.public will be created
+  + resource "aws_route_table" "public" {
+      + arn              = (known after apply)
+      + id               = (known after apply)
+      + owner_id         = (known after apply)
+      + propagating_vgws = (known after apply)
+      + region           = "us-east-1"
+      + route            = [
+          + {
+              + cidr_block                 = "[REDACTED_IPV4]/0"
+              + gateway_id                 = (known after apply)
+                # (12 unchanged attributes hidden)
+            },
+        ]
+      + tags             = {
+          + "Name" = "underflow-api-bench-c0cf1f68-public"
+        }
+      + tags_all         = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-public"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+      + vpc_id           = (known after apply)
+    }
+
+  # aws_route_table_association.public[0] will be created
+  + resource "aws_route_table_association" "public" {
+      + id             = (known after apply)
+      + region         = "us-east-1"
+      + route_table_id = (known after apply)
+      + subnet_id      = (known after apply)
+    }
+
+  # aws_route_table_association.public[1] will be created
+  + resource "aws_route_table_association" "public" {
+      + id             = (known after apply)
+      + region         = "us-east-1"
+      + route_table_id = (known after apply)
+      + subnet_id      = (known after apply)
+    }
+
+  # aws_secretsmanager_secret.runtime will be created
+  + resource "aws_secretsmanager_secret" "runtime" {
+      + arn                            = (known after apply)
+      + description                    = "Disposable API benchmark runtime secrets."
+      + force_overwrite_replica_secret = false
+      + id                             = (known after apply)
+      + name                           = "underflow-api-bench-c0cf1f68-runtime"
+      + name_prefix                    = (known after apply)
+      + policy                         = (known after apply)
+      + recovery_window_in_days        = 0
+      + region                         = "us-east-1"
+      + tags                           = {
+          + "Name" = "underflow-api-bench-c0cf1f68-runtime"
+        }
+      + tags_all                       = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-runtime"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+
+      + replica (known after apply)
+    }
+
+  # aws_secretsmanager_secret_version.runtime will be created
+  + resource "aws_secretsmanager_secret_version" "runtime" {
+      + arn                  = (known after apply)
+      + has_secret_string_wo = (known after apply)
+      + id                   = (known after apply)
+      + region               = "us-east-1"
+      + secret_arn           = (known after apply)
+      + secret_id            = (known after apply)
+      + secret_string        = (sensitive value)
+      + secret_string_wo     = (write-only attribute)
+      + version_id           = (known after apply)
+      + version_stages       = (known after apply)
+    }
+
+  # aws_security_group.alb will be created
+  + resource "aws_security_group" "alb" {
+      + arn                    = (known after apply)
+      + description            = "Benchmark load generator ingress only."
+      + egress                 = [
+          + {
+              + cidr_blocks      = [
+                  + "[REDACTED_IPV4]/0",
+                ]
+              + from_port        = 0
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "-1"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 0
+                # (1 unchanged attribute hidden)
+            },
+        ]
+      + id                     = (known after apply)
+      + ingress                = [
+          + {
+              + cidr_blocks      = [
+                  + "[REDACTED_IPV4]/32",
+                ]
+              + description      = "HTTP from the explicitly configured load generator"
+              + from_port        = 80
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 80
+            },
+        ]
+      + name                   = "underflow-api-bench-c0cf1f68-alb"
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + region                 = "us-east-1"
+      + revoke_rules_on_delete = false
+      + tags                   = {
+          + "Name" = "underflow-api-bench-c0cf1f68-alb"
+        }
+      + tags_all               = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-alb"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+      + vpc_id                 = (known after apply)
+    }
+
+  # aws_security_group.ecs will be created
+  + resource "aws_security_group" "ecs" {
+      + arn                    = (known after apply)
+      + description            = "Benchmark API tasks; no direct public ingress."
+      + egress                 = [
+          + {
+              + cidr_blocks      = [
+                  + "[REDACTED_IPV4]/0",
+                ]
+              + from_port        = 0
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "-1"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 0
+                # (1 unchanged attribute hidden)
+            },
+        ]
+      + id                     = (known after apply)
+      + ingress                = [
+          + {
+              + cidr_blocks      = []
+              + description      = "API traffic from the benchmark ALB only"
+              + from_port        = 3080
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = (known after apply)
+              + self             = false
+              + to_port          = 3080
+            },
+        ]
+      + name                   = "underflow-api-bench-c0cf1f68-ecs"
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + region                 = "us-east-1"
+      + revoke_rules_on_delete = false
+      + tags                   = {
+          + "Name" = "underflow-api-bench-c0cf1f68-ecs"
+        }
+      + tags_all               = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-ecs"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+      + vpc_id                 = (known after apply)
+    }
+
+  # aws_security_group.rds will be created
+  + resource "aws_security_group" "rds" {
+      + arn                    = (known after apply)
+      + description            = "Benchmark PostgreSQL ingress from API tasks only."
+      + egress                 = [
+          + {
+              + cidr_blocks      = [
+                  + "[REDACTED_IPV4]/0",
+                ]
+              + from_port        = 0
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "-1"
+              + security_groups  = []
+              + self             = false
+              + to_port          = 0
+                # (1 unchanged attribute hidden)
+            },
+        ]
+      + id                     = (known after apply)
+      + ingress                = [
+          + {
+              + cidr_blocks      = []
+              + description      = "PostgreSQL from benchmark API tasks only"
+              + from_port        = 5432
+              + ipv6_cidr_blocks = []
+              + prefix_list_ids  = []
+              + protocol         = "tcp"
+              + security_groups  = (known after apply)
+              + self             = false
+              + to_port          = 5432
+            },
+        ]
+      + name                   = "underflow-api-bench-c0cf1f68-rds"
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + region                 = "us-east-1"
+      + revoke_rules_on_delete = false
+      + tags                   = {
+          + "Name" = "underflow-api-bench-c0cf1f68-rds"
+        }
+      + tags_all               = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-rds"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+      + vpc_id                 = (known after apply)
+    }
+
+  # aws_subnet.public[0] will be created
+  + resource "aws_subnet" "public" {
+      + arn                                            = (known after apply)
+      + assign_ipv6_address_on_creation                = false
+      + availability_zone                              = "us-east-1a"
+      + availability_zone_id                           = (known after apply)
+      + cidr_block                                     = "[REDACTED_IPV4]/24"
+      + enable_dns64                                   = false
+      + enable_resource_name_dns_a_record_on_launch    = false
+      + enable_resource_name_dns_aaaa_record_on_launch = false
+      + id                                             = (known after apply)
+      + ipv6_cidr_block                                = (known after apply)
+      + ipv6_cidr_block_association_id                 = (known after apply)
+      + ipv6_native                                    = false
+      + map_public_ip_on_launch                        = true
+      + owner_id                                       = (known after apply)
+      + private_dns_hostname_type_on_launch            = (known after apply)
+      + region                                         = "us-east-1"
+      + tags                                           = {
+          + "Name" = "underflow-api-bench-c0cf1f68-public-1"
+        }
+      + tags_all                                       = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-public-1"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+      + vpc_id                                         = (known after apply)
+    }
+
+  # aws_subnet.public[1] will be created
+  + resource "aws_subnet" "public" {
+      + arn                                            = (known after apply)
+      + assign_ipv6_address_on_creation                = false
+      + availability_zone                              = "us-east-1b"
+      + availability_zone_id                           = (known after apply)
+      + cidr_block                                     = "[REDACTED_IPV4]/24"
+      + enable_dns64                                   = false
+      + enable_resource_name_dns_a_record_on_launch    = false
+      + enable_resource_name_dns_aaaa_record_on_launch = false
+      + id                                             = (known after apply)
+      + ipv6_cidr_block                                = (known after apply)
+      + ipv6_cidr_block_association_id                 = (known after apply)
+      + ipv6_native                                    = false
+      + map_public_ip_on_launch                        = true
+      + owner_id                                       = (known after apply)
+      + private_dns_hostname_type_on_launch            = (known after apply)
+      + region                                         = "us-east-1"
+      + tags                                           = {
+          + "Name" = "underflow-api-bench-c0cf1f68-public-2"
+        }
+      + tags_all                                       = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-public-2"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+      + vpc_id                                         = (known after apply)
+    }
+
+  # aws_vpc.benchmark will be created
+  + resource "aws_vpc" "benchmark" {
+      + arn                                  = (known after apply)
+      + cidr_block                           = "[REDACTED_IPV4]/16"
+      + default_network_acl_id               = (known after apply)
+      + default_route_table_id               = (known after apply)
+      + default_security_group_id            = (known after apply)
+      + dhcp_options_id                      = (known after apply)
+      + enable_dns_hostnames                 = true
+      + enable_dns_support                   = true
+      + enable_network_address_usage_metrics = (known after apply)
+      + id                                   = (known after apply)
+      + instance_tenancy                     = "default"
+      + ipv6_association_id                  = (known after apply)
+      + ipv6_cidr_block                      = (known after apply)
+      + ipv6_cidr_block_network_border_group = (known after apply)
+      + main_route_table_id                  = (known after apply)
+      + owner_id                             = (known after apply)
+      + region                               = "us-east-1"
+      + tags                                 = {
+          + "Name" = "underflow-api-bench-c0cf1f68-vpc"
+        }
+      + tags_all                             = {
+          + "Name"        = "underflow-api-bench-c0cf1f68-vpc"
+          + "environment" = "api-benchmark"
+          + "managed"     = "terraform"
+          + "project"     = "underflow"
+          + "purpose"     = "disposable-load-test"
+        }
+    }
+
+  # random_password.benchmark will be created
+  + resource "random_password" "benchmark" {
+      + bcrypt_hash = (sensitive value)
+      + id          = (known after apply)
+      + length      = 24
+      + lower       = true
+      + min_lower   = 0
+      + min_numeric = 0
+      + min_special = 0
+      + min_upper   = 0
+      + number      = true
+      + numeric     = true
+      + result      = (sensitive value)
+      + special     = false
+      + upper       = true
+    }
+
+  # random_password.csrf will be created
+  + resource "random_password" "csrf" {
+      + bcrypt_hash = (sensitive value)
+      + id          = (known after apply)
+      + length      = 48
+      + lower       = true
+      + min_lower   = 0
+      + min_numeric = 0
+      + min_special = 0
+      + min_upper   = 0
+      + number      = true
+      + numeric     = true
+      + result      = (sensitive value)
+      + special     = false
+      + upper       = true
+    }
+
+  # random_password.database will be created
+  + resource "random_password" "database" {
+      + bcrypt_hash      = (sensitive value)
+      + id               = (known after apply)
+      + length           = 32
+      + lower            = true
+      + min_lower        = 0
+      + min_numeric      = 0
+      + min_special      = 0
+      + min_upper        = 0
+      + number           = true
+      + numeric          = true
+      + override_special = "!#$%&*+-.:=?@_"
+      + result           = (sensitive value)
+      + special          = true
+      + upper            = true
+    }
+
+  # random_password.jwt_access will be created
+  + resource "random_password" "jwt_access" {
+      + bcrypt_hash = (sensitive value)
+      + id          = (known after apply)
+      + length      = 64
+      + lower       = true
+      + min_lower   = 0
+      + min_numeric = 0
+      + min_special = 0
+      + min_upper   = 0
+      + number      = true
+      + numeric     = true
+      + result      = (sensitive value)
+      + special     = false
+      + upper       = true
+    }
+
+  # random_password.jwt_refresh will be created
+  + resource "random_password" "jwt_refresh" {
+      + bcrypt_hash = (sensitive value)
+      + id          = (known after apply)
+      + length      = 64
+      + lower       = true
+      + min_lower   = 0
+      + min_numeric = 0
+      + min_special = 0
+      + min_upper   = 0
+      + number      = true
+      + numeric     = true
+      + result      = (sensitive value)
+      + special     = false
+      + upper       = true
+    }
+
+Plan: 31 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + alb_dns_name             = (known after apply)
+  + api_base_url             = (known after apply)
+  + availability_zones       = [
+      + "us-east-1a",
+      + "us-east-1b",
+    ]
+  + aws_region               = "us-east-1"
+  + ecr_repository_url       = (known after apply)
+  + ecs_cluster_name         = "underflow-api-bench-c0cf1f68-cluster"
+  + ecs_security_group_id    = (known after apply)
+  + ecs_service_name         = "underflow-api-bench-c0cf1f68-api"
+  + load_balancer_arn_suffix = (known after apply)
+  + rds_identifier           = "underflow-api-bench-c0cf1f68-postgres"
+  + resource_prefix          = "underflow-api-bench-c0cf1f68"
+  + runtime_secret_arn       = (sensitive value)
+  + subnet_ids               = [
+      + (known after apply),
+      + (known after apply),
+    ]
+  + target_group_arn_suffix  = (known after apply)
+  + task_definition_arn      = (known after apply)

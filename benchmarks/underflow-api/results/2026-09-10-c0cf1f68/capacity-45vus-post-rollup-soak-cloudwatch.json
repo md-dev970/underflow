@@ -1,0 +1,859 @@
+{
+  "startTime": "2026-09-10T21:07:35Z",
+  "endTime": "2026-09-10T21:22:36Z",
+  "periodSeconds": 60,
+  "ecsTaskCountsAtCollection": {
+    "desiredCount": 1,
+    "runningCount": 1,
+    "pendingCount": 0
+  },
+  "metrics": {
+    "alb_4xx": {
+      "label": "HTTPCode_ELB_4XX_Count",
+      "datapoints": []
+    },
+    "alb_5xx": {
+      "label": "HTTPCode_ELB_5XX_Count",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T22:16:00+01:00",
+          "Sum": 1.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:18:00+01:00",
+          "Sum": 1.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:21:00+01:00",
+          "Sum": 1.0,
+          "Unit": "Count"
+        }
+      ]
+    },
+    "alb_target_5xx": {
+      "label": "HTTPCode_Target_5XX_Count",
+      "datapoints": []
+    },
+    "alb_target_response": {
+      "label": "TargetResponseTime",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T22:07:00+01:00",
+          "Unit": "Seconds",
+          "ExtendedStatistics": {
+            "p99": 0.22696422849622452,
+            "p90": 0.03841808723311325,
+            "p50": 0.012767480580308825,
+            "p95": 0.08663686471205145
+          }
+        },
+        {
+          "Timestamp": "2026-09-10T22:08:00+01:00",
+          "Unit": "Seconds",
+          "ExtendedStatistics": {
+            "p99": 0.12127545537418484,
+            "p90": 0.034861958298139366,
+            "p50": 0.01334601622259427,
+            "p95": 0.066006978014974
+          }
+        },
+        {
+          "Timestamp": "2026-09-10T22:09:00+01:00",
+          "Unit": "Seconds",
+          "ExtendedStatistics": {
+            "p99": 0.15553184370961143,
+            "p90": 0.046290560453668486,
+            "p50": 0.014499876365229116,
+            "p95": 0.08189163656668233
+          }
+        },
+        {
+          "Timestamp": "2026-09-10T22:10:00+01:00",
+          "Unit": "Seconds",
+          "ExtendedStatistics": {
+            "p99": 0.14957885435136659,
+            "p90": 0.055556492335232244,
+            "p50": 0.014669070692200284,
+            "p95": 0.0892821045873521
+          }
+        },
+        {
+          "Timestamp": "2026-09-10T22:11:00+01:00",
+          "Unit": "Seconds",
+          "ExtendedStatistics": {
+            "p99": 0.13140495969438273,
+            "p90": 0.0327728163515166,
+            "p50": 0.013030088230694301,
+            "p95": 0.06352527315394052
+          }
+        },
+        {
+          "Timestamp": "2026-09-10T22:12:00+01:00",
+          "Unit": "Seconds",
+          "ExtendedStatistics": {
+            "p99": 0.1394391257218174,
+            "p90": 0.05100416210263806,
+            "p50": 0.013983387667723654,
+            "p95": 0.08133548737421174
+          }
+        },
+        {
+          "Timestamp": "2026-09-10T22:13:00+01:00",
+          "Unit": "Seconds",
+          "ExtendedStatistics": {
+            "p99": 0.1304723344686426,
+            "p90": 0.03894339707974348,
+            "p50": 0.014039776647280941,
+            "p95": 0.0682588712314812
+          }
+        },
+        {
+          "Timestamp": "2026-09-10T22:14:00+01:00",
+          "Unit": "Seconds",
+          "ExtendedStatistics": {
+            "p99": 0.1292886727605574,
+            "p90": 0.0355498927717731,
+            "p50": 0.01330494667270981,
+            "p95": 0.06552079636554493
+          }
+        },
+        {
+          "Timestamp": "2026-09-10T22:15:00+01:00",
+          "Unit": "Seconds",
+          "ExtendedStatistics": {
+            "p99": 0.12057463938746758,
+            "p90": 0.05183884785424821,
+            "p50": 0.014719794287451161,
+            "p95": 0.08010717484458531
+          }
+        },
+        {
+          "Timestamp": "2026-09-10T22:16:00+01:00",
+          "Unit": "Seconds",
+          "ExtendedStatistics": {
+            "p99": 0.12272407084884956,
+            "p90": 0.02965406917127382,
+            "p50": 0.01293879627331918,
+            "p95": 0.05889423773359602
+          }
+        },
+        {
+          "Timestamp": "2026-09-10T22:17:00+01:00",
+          "Unit": "Seconds",
+          "ExtendedStatistics": {
+            "p99": 0.11532587931874197,
+            "p90": 0.04470771790836263,
+            "p50": 0.01461153690611638,
+            "p95": 0.07023591080244401
+          }
+        },
+        {
+          "Timestamp": "2026-09-10T22:18:00+01:00",
+          "Unit": "Seconds",
+          "ExtendedStatistics": {
+            "p99": 0.16658662201219457,
+            "p90": 0.05131801693381506,
+            "p50": 0.015001231002625093,
+            "p95": 0.08203423009262112
+          }
+        },
+        {
+          "Timestamp": "2026-09-10T22:19:00+01:00",
+          "Unit": "Seconds",
+          "ExtendedStatistics": {
+            "p99": 0.1429754692803315,
+            "p90": 0.05179071890944367,
+            "p50": 0.015222384966804284,
+            "p95": 0.08382716786850573
+          }
+        },
+        {
+          "Timestamp": "2026-09-10T22:20:00+01:00",
+          "Unit": "Seconds",
+          "ExtendedStatistics": {
+            "p99": 0.16332998520837083,
+            "p90": 0.05782130915813708,
+            "p50": 0.014950578453640933,
+            "p95": 0.08989301919448041
+          }
+        },
+        {
+          "Timestamp": "2026-09-10T22:21:00+01:00",
+          "Unit": "Seconds",
+          "ExtendedStatistics": {
+            "p99": 0.14521047708988097,
+            "p90": 0.03558024893885173,
+            "p50": 0.01367234586144698,
+            "p95": 0.07367894105208644
+          }
+        }
+      ]
+    },
+    "ecs_cpu": {
+      "label": "CPUUtilization",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T22:07:00+01:00",
+          "Average": 19.006610927482445,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:08:00+01:00",
+          "Average": 71.08097585042317,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:09:00+01:00",
+          "Average": 75.06921895345052,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:10:00+01:00",
+          "Average": 73.82374827067058,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:11:00+01:00",
+          "Average": 66.42612202962239,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:12:00+01:00",
+          "Average": 72.2046381632487,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:13:00+01:00",
+          "Average": 72.75210571289062,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:14:00+01:00",
+          "Average": 67.82080332438152,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:15:00+01:00",
+          "Average": 74.06728871663411,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:16:00+01:00",
+          "Average": 63.4721425374349,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:17:00+01:00",
+          "Average": 75.20867665608723,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:18:00+01:00",
+          "Average": 74.73727671305339,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:19:00+01:00",
+          "Average": 76.2130126953125,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:20:00+01:00",
+          "Average": 75.22903442382812,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:21:00+01:00",
+          "Average": 64.43630854288737,
+          "Unit": "Percent"
+        }
+      ]
+    },
+    "ecs_memory": {
+      "label": "MemoryUtilization",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T22:07:00+01:00",
+          "Average": 6.8359375,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:08:00+01:00",
+          "Average": 6.901041666666667,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:09:00+01:00",
+          "Average": 6.917317708333333,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:10:00+01:00",
+          "Average": 6.917317708333333,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:11:00+01:00",
+          "Average": 6.917317708333333,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:12:00+01:00",
+          "Average": 6.884765625,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:13:00+01:00",
+          "Average": 6.901041666666667,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:14:00+01:00",
+          "Average": 6.884765625,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:15:00+01:00",
+          "Average": 6.917317708333333,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:16:00+01:00",
+          "Average": 6.8359375,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:17:00+01:00",
+          "Average": 6.917317708333333,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:18:00+01:00",
+          "Average": 6.93359375,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:19:00+01:00",
+          "Average": 6.93359375,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:20:00+01:00",
+          "Average": 6.93359375,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:21:00+01:00",
+          "Average": 6.93359375,
+          "Unit": "Percent"
+        }
+      ]
+    },
+    "ecs_running_tasks": {
+      "label": "RunningTaskCount",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T22:07:00+01:00",
+          "Average": 1.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:08:00+01:00",
+          "Average": 1.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:09:00+01:00",
+          "Average": 1.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:10:00+01:00",
+          "Average": 1.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:11:00+01:00",
+          "Average": 1.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:12:00+01:00",
+          "Average": 1.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:13:00+01:00",
+          "Average": 1.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:14:00+01:00",
+          "Average": 1.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:15:00+01:00",
+          "Average": 1.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:16:00+01:00",
+          "Average": 1.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:17:00+01:00",
+          "Average": 1.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:18:00+01:00",
+          "Average": 1.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:19:00+01:00",
+          "Average": 1.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:20:00+01:00",
+          "Average": 1.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:21:00+01:00",
+          "Average": 1.0,
+          "Unit": "Count"
+        }
+      ]
+    },
+    "rds_burst_balance": {
+      "label": "BurstBalance",
+      "datapoints": []
+    },
+    "rds_connections": {
+      "label": "DatabaseConnections",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T22:07:00+01:00",
+          "Average": 10.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:08:00+01:00",
+          "Average": 10.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:09:00+01:00",
+          "Average": 10.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:10:00+01:00",
+          "Average": 10.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:11:00+01:00",
+          "Average": 10.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:12:00+01:00",
+          "Average": 10.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:13:00+01:00",
+          "Average": 10.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:14:00+01:00",
+          "Average": 10.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:15:00+01:00",
+          "Average": 10.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:16:00+01:00",
+          "Average": 10.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:17:00+01:00",
+          "Average": 10.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:18:00+01:00",
+          "Average": 10.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:19:00+01:00",
+          "Average": 10.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:20:00+01:00",
+          "Average": 10.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:21:00+01:00",
+          "Average": 10.0,
+          "Unit": "Count"
+        }
+      ]
+    },
+    "rds_cpu": {
+      "label": "CPUUtilization",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T22:07:00+01:00",
+          "Average": 3.7185259296314825,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:08:00+01:00",
+          "Average": 48.449999999999996,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:09:00+01:00",
+          "Average": 60.64164709409825,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:10:00+01:00",
+          "Average": 66.40318842029782,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:11:00+01:00",
+          "Average": 58.09166666666666,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:12:00+01:00",
+          "Average": 58.19166666666666,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:13:00+01:00",
+          "Average": 63.633333333333326,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:14:00+01:00",
+          "Average": 57.08074430691831,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:15:00+01:00",
+          "Average": 64.2393823681446,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:16:00+01:00",
+          "Average": 55.93333333333334,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:17:00+01:00",
+          "Average": 62.0054967935371,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:18:00+01:00",
+          "Average": 64.52311897856451,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:19:00+01:00",
+          "Average": 65.89851761684814,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:20:00+01:00",
+          "Average": 66.38848633251712,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T22:21:00+01:00",
+          "Average": 66.62944196279751,
+          "Unit": "Percent"
+        }
+      ]
+    },
+    "rds_cpu_credit": {
+      "label": "CPUCreditBalance",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T22:10:00+01:00",
+          "Average": 116.5389658,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:15:00+01:00",
+          "Average": 111.45983285,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T22:20:00+01:00",
+          "Average": 106.11632803333333,
+          "Unit": "Count"
+        }
+      ]
+    },
+    "rds_free_memory": {
+      "label": "FreeableMemory",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T22:07:00+01:00",
+          "Average": 100311040.0,
+          "Unit": "Bytes"
+        },
+        {
+          "Timestamp": "2026-09-10T22:08:00+01:00",
+          "Average": 94199808.0,
+          "Unit": "Bytes"
+        },
+        {
+          "Timestamp": "2026-09-10T22:09:00+01:00",
+          "Average": 91463680.0,
+          "Unit": "Bytes"
+        },
+        {
+          "Timestamp": "2026-09-10T22:10:00+01:00",
+          "Average": 87752704.0,
+          "Unit": "Bytes"
+        },
+        {
+          "Timestamp": "2026-09-10T22:11:00+01:00",
+          "Average": 83718144.0,
+          "Unit": "Bytes"
+        },
+        {
+          "Timestamp": "2026-09-10T22:12:00+01:00",
+          "Average": 94822400.0,
+          "Unit": "Bytes"
+        },
+        {
+          "Timestamp": "2026-09-10T22:13:00+01:00",
+          "Average": 93990912.0,
+          "Unit": "Bytes"
+        },
+        {
+          "Timestamp": "2026-09-10T22:14:00+01:00",
+          "Average": 91389952.0,
+          "Unit": "Bytes"
+        },
+        {
+          "Timestamp": "2026-09-10T22:15:00+01:00",
+          "Average": 86355968.0,
+          "Unit": "Bytes"
+        },
+        {
+          "Timestamp": "2026-09-10T22:16:00+01:00",
+          "Average": 84824064.0,
+          "Unit": "Bytes"
+        },
+        {
+          "Timestamp": "2026-09-10T22:17:00+01:00",
+          "Average": 102236160.0,
+          "Unit": "Bytes"
+        },
+        {
+          "Timestamp": "2026-09-10T22:18:00+01:00",
+          "Average": 95895552.0,
+          "Unit": "Bytes"
+        },
+        {
+          "Timestamp": "2026-09-10T22:19:00+01:00",
+          "Average": 94117888.0,
+          "Unit": "Bytes"
+        },
+        {
+          "Timestamp": "2026-09-10T22:20:00+01:00",
+          "Average": 88563712.0,
+          "Unit": "Bytes"
+        },
+        {
+          "Timestamp": "2026-09-10T22:21:00+01:00",
+          "Average": 87482368.0,
+          "Unit": "Bytes"
+        }
+      ]
+    },
+    "rds_read_latency": {
+      "label": "ReadLatency",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T22:07:00+01:00",
+          "Average": 0.001,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:08:00+01:00",
+          "Average": 0.0,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:09:00+01:00",
+          "Average": 0.0,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:10:00+01:00",
+          "Average": 0.0,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:11:00+01:00",
+          "Average": 0.0025,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:12:00+01:00",
+          "Average": 0.0036075949367088606,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:13:00+01:00",
+          "Average": 0.0,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:14:00+01:00",
+          "Average": 0.0,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:15:00+01:00",
+          "Average": 0.0007142857142857143,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:16:00+01:00",
+          "Average": 0.0,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:17:00+01:00",
+          "Average": 8.064516129032258e-05,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:18:00+01:00",
+          "Average": 0.002,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:19:00+01:00",
+          "Average": 0.0,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:20:00+01:00",
+          "Average": 0.0008333333333333334,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:21:00+01:00",
+          "Average": 0.0,
+          "Unit": "Seconds"
+        }
+      ]
+    },
+    "rds_write_latency": {
+      "label": "WriteLatency",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T22:07:00+01:00",
+          "Average": 0.0063686131386861316,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:08:00+01:00",
+          "Average": 0.0,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:09:00+01:00",
+          "Average": 0.0,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:10:00+01:00",
+          "Average": 0.00020833333333333335,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:11:00+01:00",
+          "Average": 0.0,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:12:00+01:00",
+          "Average": 0.009750889679715304,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:13:00+01:00",
+          "Average": 0.0005,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:14:00+01:00",
+          "Average": 0.000425531914893617,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:15:00+01:00",
+          "Average": 0.00036363636363636367,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:16:00+01:00",
+          "Average": 0.00020833333333333335,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:17:00+01:00",
+          "Average": 0.007356115107913669,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:18:00+01:00",
+          "Average": 0.0,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:19:00+01:00",
+          "Average": 0.0004347826086956522,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:20:00+01:00",
+          "Average": 0.00017857142857142857,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T22:21:00+01:00",
+          "Average": 0.0,
+          "Unit": "Seconds"
+        }
+      ]
+    }
+  }
+}

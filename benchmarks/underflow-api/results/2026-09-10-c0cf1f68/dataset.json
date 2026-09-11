@@ -1,0 +1,15 @@
+{
+  "dataset": "underflow-api-benchmark-v1",
+  "dateRange": {
+    "from": "2025-01-01",
+    "to": "2025-12-31"
+  },
+  "servicesPerAccountPerDay": 50,
+  "users": 10,
+  "workspaces": 10,
+  "workspaceMembers": 10,
+  "awsAccounts": 200,
+  "costSyncRuns": 200,
+  "costSnapshots": 3650000,
+  "costRollups": 182500
+}
