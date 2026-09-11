@@ -6,7 +6,7 @@ Measure authenticated, PostgreSQL-backed cost-reporting reads on an isolated, di
 
 ## Tested commit
 
-API commit `2624a6ccafc427521745b1180764fcde963f90bc` using image digest `sha256:b1eec7b5c7652dfab0fe8259ab66f9b0682e228930da769c8d1688961680e644`.
+The deployed image was built from local commit `2624a6ccafc427521745b1180764fcde963f90bc` using image digest `sha256:b1eec7b5c7652dfab0fe8259ab66f9b0682e228930da769c8d1688961680e644`. After an evidence-only history rewrite removed a bearer token from an earlier commit, the code-equivalent repository commit is `f6c356d5e38409b5dfcd44908af68cc968335631`.
 
 ## Infrastructure
 

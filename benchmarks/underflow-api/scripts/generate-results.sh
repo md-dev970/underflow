@@ -143,7 +143,7 @@ lines = [
     "",
     "## Tested commit",
     "",
-    f"API commit `{environment['gitSha']}` using image digest `{environment['imageDigest']}`.",
+    f"The deployed image was built from local commit `{environment['gitSha']}` using image digest `{environment['imageDigest']}`. After an evidence-only history rewrite removed a bearer token from an earlier commit, the code-equivalent repository commit is `{environment['repositoryEquivalentSha']}`.",
     "",
     "## Infrastructure",
     "",
