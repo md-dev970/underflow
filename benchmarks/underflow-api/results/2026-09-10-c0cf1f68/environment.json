@@ -1,0 +1,108 @@
+{
+  "gitSha": "2624a6ccafc427521745b1180764fcde963f90bc",
+  "repositoryEquivalentSha": "f6c356d5e38409b5dfcd44908af68cc968335631",
+  "imageDigest": "sha256:b1eec7b5c7652dfab0fe8259ab66f9b0682e228930da769c8d1688961680e644",
+  "testTimestamp": "2026-09-10T21:07:35Z",
+  "awsRegion": "us-east-1",
+  "availabilityZones": [
+    "us-east-1a",
+    "us-east-1b"
+  ],
+  "infrastructure": {
+    "ecs": {
+      "cpu": 512,
+      "memoryMiB": 1024,
+      "desiredCount": 1
+    },
+    "rds": {
+      "class": "db.t4g.micro",
+      "engine": "postgres",
+      "engineVersion": "16.13",
+      "storageGiB": 20,
+      "multiAz": false,
+      "publiclyAccessible": false
+    }
+  },
+  "nodeVersion": "v25.9.0",
+  "k6Version": "k6 v2.2.0 (commit/00a9a1b7f5, go1.26.5, linux/amd64)",
+  "dataset": "underflow-api-benchmark-v1",
+  "profiles": {
+    "smoke": {
+      "vus": 2,
+      "duration": "30s"
+    },
+    "supportedCapacity": {
+      "vus": 45,
+      "duration": "15m",
+      "serverSideTargetsMs": {
+        "p50": 30,
+        "p95": 100,
+        "p99": 250
+      }
+    },
+    "normalLoad": {
+      "stages": [
+        [
+          "1m",
+          25
+        ],
+        [
+          "3m",
+          25
+        ],
+        [
+          "1m",
+          50
+        ],
+        [
+          "5m",
+          50
+        ],
+        [
+          "2m",
+          100
+        ],
+        [
+          "5m",
+          100
+        ],
+        [
+          "1m",
+          0
+        ]
+      ]
+    },
+    "stress": {
+      "stages": [
+        [
+          "2m",
+          100
+        ],
+        [
+          "3m",
+          100
+        ],
+        [
+          "1m",
+          150
+        ],
+        [
+          "3m",
+          150
+        ],
+        [
+          "1m",
+          200
+        ],
+        [
+          "3m",
+          200
+        ],
+        [
+          "1m",
+          0
+        ]
+      ]
+    }
+  }
+}

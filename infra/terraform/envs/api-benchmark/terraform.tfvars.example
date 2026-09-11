@@ -1,0 +1,7 @@
+aws_region     = "us-east-1"
+benchmark_id   = "a1b2c3d4"
+load_test_cidr = "203.0.113.10/32"
+image_tag      = "c0cf1f6"
+
+# Keep disabled unless support and any cost have been checked for the selected class.
+performance_insights_enabled = false

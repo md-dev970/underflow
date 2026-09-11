@@ -1,0 +1,227 @@
+{
+  "startTime": "2026-09-10T20:17:40Z",
+  "endTime": "2026-09-10T20:20:42Z",
+  "periodSeconds": 60,
+  "ecsTaskCountsAtCollection": {
+    "desiredCount": 1,
+    "runningCount": 1,
+    "pendingCount": 0
+  },
+  "metrics": {
+    "alb_4xx": {
+      "label": "HTTPCode_ELB_4XX_Count",
+      "datapoints": []
+    },
+    "alb_5xx": {
+      "label": "HTTPCode_ELB_5XX_Count",
+      "datapoints": []
+    },
+    "alb_target_5xx": {
+      "label": "HTTPCode_Target_5XX_Count",
+      "datapoints": []
+    },
+    "alb_target_response": {
+      "label": "TargetResponseTime",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T21:17:00+01:00",
+          "Unit": "Seconds",
+          "ExtendedStatistics": {
+            "p99": 0.2880415260002257,
+            "p90": 0.07948940468971274,
+            "p50": 0.018442464722367446,
+            "p95": 0.10820152849797136
+          }
+        },
+        {
+          "Timestamp": "2026-09-10T21:18:00+01:00",
+          "Unit": "Seconds",
+          "ExtendedStatistics": {
+            "p99": 0.1505583141337567,
+            "p90": 0.0730106115252081,
+            "p50": 0.018088536052210898,
+            "p95": 0.10037498725255879
+          }
+        },
+        {
+          "Timestamp": "2026-09-10T21:19:00+01:00",
+          "Unit": "Seconds",
+          "ExtendedStatistics": {
+            "p99": 0.14906399169684623,
+            "p90": 0.06219236034512958,
+            "p50": 0.016825326654889554,
+            "p95": 0.08929295067891424
+          }
+        }
+      ]
+    },
+    "ecs_cpu": {
+      "label": "CPUUtilization",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T21:17:00+01:00",
+          "Average": 22.529106200595077,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T21:18:00+01:00",
+          "Average": 79.64221700032552,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T21:19:00+01:00",
+          "Average": 82.50581868489583,
+          "Unit": "Percent"
+        }
+      ]
+    },
+    "ecs_memory": {
+      "label": "MemoryUtilization",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T21:17:00+01:00",
+          "Average": 6.8359375,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T21:18:00+01:00",
+          "Average": 6.8359375,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T21:19:00+01:00",
+          "Average": 6.8359375,
+          "Unit": "Percent"
+        }
+      ]
+    },
+    "ecs_running_tasks": {
+      "label": "RunningTaskCount",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T21:17:00+01:00",
+          "Average": 1.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T21:18:00+01:00",
+          "Average": 1.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T21:19:00+01:00",
+          "Average": 1.0,
+          "Unit": "Count"
+        }
+      ]
+    },
+    "rds_burst_balance": {
+      "label": "BurstBalance",
+      "datapoints": []
+    },
+    "rds_connections": {
+      "label": "DatabaseConnections",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T21:17:00+01:00",
+          "Average": 0.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T21:18:00+01:00",
+          "Average": 10.0,
+          "Unit": "Count"
+        },
+        {
+          "Timestamp": "2026-09-10T21:19:00+01:00",
+          "Average": 10.0,
+          "Unit": "Count"
+        }
+      ]
+    },
+    "rds_cpu": {
+      "label": "CPUUtilization",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T21:17:00+01:00",
+          "Average": 3.7731762981225745,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T21:18:00+01:00",
+          "Average": 55.76862150039186,
+          "Unit": "Percent"
+        },
+        {
+          "Timestamp": "2026-09-10T21:19:00+01:00",
+          "Average": 73.39999999999999,
+          "Unit": "Percent"
+        }
+      ]
+    },
+    "rds_cpu_credit": {
+      "label": "CPUCreditBalance",
+      "datapoints": []
+    },
+    "rds_free_memory": {
+      "label": "FreeableMemory",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T21:17:00+01:00",
+          "Average": 104902656.0,
+          "Unit": "Bytes"
+        },
+        {
+          "Timestamp": "2026-09-10T21:18:00+01:00",
+          "Average": 78884864.0,
+          "Unit": "Bytes"
+        },
+        {
+          "Timestamp": "2026-09-10T21:19:00+01:00",
+          "Average": 78188544.0,
+          "Unit": "Bytes"
+        }
+      ]
+    },
+    "rds_read_latency": {
+      "label": "ReadLatency",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T21:17:00+01:00",
+          "Average": 0.0,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T21:18:00+01:00",
+          "Average": 0.0,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T21:19:00+01:00",
+          "Average": 0.0,
+          "Unit": "Seconds"
+        }
+      ]
+    },
+    "rds_write_latency": {
+      "label": "WriteLatency",
+      "datapoints": [
+        {
+          "Timestamp": "2026-09-10T21:17:00+01:00",
+          "Average": 0.005927272727272727,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T21:18:00+01:00",
+          "Average": 0.0013580246913580246,
+          "Unit": "Seconds"
+        },
+        {
+          "Timestamp": "2026-09-10T21:19:00+01:00",
+          "Average": 0.0,
+          "Unit": "Seconds"
+        }
+      ]
+    }
+  }
+}

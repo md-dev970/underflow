@@ -1,0 +1,19 @@
+{
+  "verifiedAt": "2026-09-11T07:18:38Z",
+  "terraformApplyDestroyed": 31,
+  "terraformStateResources": 0,
+  "prefixScopedInventory": {
+    "ecsClusters": 0,
+    "activeTaskDefinitions": 0,
+    "rdsInstances": 0,
+    "ecrRepositories": 0,
+    "loadBalancers": 0,
+    "targetGroups": 0,
+    "logGroups": 0,
+    "vpcs": 0,
+    "securityGroups": 0,
+    "iamRoles": 0,
+    "secretsIncludingPendingDeletion": 0
+  },
+  "localSensitiveArtifactsRemoved": true
+}

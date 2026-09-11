@@ -11,6 +11,8 @@
     "jobs": "tsx src/jobs/worker.ts",
     "migrate": "tsx src/db/migrate.ts",
     "seed:demo": "node src/scripts/seed-demo.js",
+    "seed:benchmark": "tsx src/scripts/seed-benchmark.ts",
+    "backfill:cost-rollups": "tsx src/scripts/backfill-cost-rollups.ts",
     "build": "tsc -p tsconfig.json && node scripts/copy-build-assets.mjs",
     "build:lambda": "npm run build && node scripts/build-lambda-package.mjs",
     "start": "node dist/server.js",
