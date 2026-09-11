@@ -185,6 +185,12 @@ npm run build
 npm test
 ```
 
+## Load Testing
+
+The authenticated API load benchmark lives in [`benchmarks/underflow-api`](./benchmarks/underflow-api). It provisions an isolated disposable AWS stack, seeds deterministic synthetic cost data, runs bearer-authenticated k6 traffic against PostgreSQL-backed cost-reporting endpoints, collects ALB server-side latency from CloudWatch, and records sanitized evidence.
+
+The latest defensible result is documented in [`benchmarks/underflow-api/results/2026-09-10-c0cf1f68/RESULTS.md`](./benchmarks/underflow-api/results/2026-09-10-c0cf1f68/RESULTS.md): the API sustained **170.90 requests/second for 15 minutes at 45 continuously active VUs**, with a **0.0325% functional failure rate** and worst one-minute ALB server-side latency of **p50 15.22 ms, p95 89.89 ms, and p99 226.96 ms**. The first sustained failing level was 50 VUs, where the server-side p95/p99 targets were exceeded.
+
 ## Operational Notes
 
 - SES and DNS infrastructure lives under [`infra/terraform`](./infra/terraform)
